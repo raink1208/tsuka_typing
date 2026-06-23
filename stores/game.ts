@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { WORDS, ENEMIES, type Word, type Enemy } from '~/data/words'
-import { tokenizeHiragana, type KanaToken } from '~/composables/useRomaji'
+import { tokenizeHiragana, trySplitToken, type KanaToken } from '~/composables/useRomaji'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export type AnimState = 'idle' | 'attack' | 'damage' | 'dead'
@@ -12,9 +12,9 @@ interface DiffConfig {
 }
 
 const DIFF_CONFIG: Record<Difficulty, DiffConfig> = {
-  easy:   { time: 120, tsukasaMaxHp: 500, dmgPerMiss: 5  },
-  normal: { time: 90,  tsukasaMaxHp: 300, dmgPerMiss: 10 },
-  hard:   { time: 60,  tsukasaMaxHp: 200, dmgPerMiss: 20 },
+  easy:   { time: 70, tsukasaMaxHp: 500, dmgPerMiss: 5  },
+  normal: { time: 60,  tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  hard:   { time: 50,  tsukasaMaxHp: 200, dmgPerMiss: 20 },
 }
 
 export const useGameStore = defineStore('game', {
@@ -26,7 +26,6 @@ export const useGameStore = defineStore('game', {
     combo: 0,
     maxCombo: 0,
     timeLeft: 90,
-    wave: 1,
     wordsCompleted: 0,
     totalKeystrokes: 0,
     correctKeystrokes: 0,
@@ -44,6 +43,8 @@ export const useGameStore = defineStore('game', {
     currentTokens:     [] as KanaToken[],
     currentKanaIndex:  0,
     currentKanaTyped:  '',
+    currentDisplayRomaji: '',  // スポーン時に確定（未入力トークンの表示用）
+    typedSoFar: '',            // 確定済みトークンの実際に打ったキー累積
 
     transitioning: false,
     showMissFlash: false,
@@ -59,22 +60,33 @@ export const useGameStore = defineStore('game', {
       s.tsukasaMaxHp > 0 ? Math.max(0, (s.tsukasaHp / s.tsukasaMaxHp) * 100) : 0,
     enemyHpPct: (s) =>
       s.enemyMaxHp > 0 ? Math.max(0, (s.enemyHp / s.enemyMaxHp) * 100) : 0,
-    /** 画面表示用ローマ字（primaryを結合） */
-    displayRomaji: (s): string =>
-      s.currentTokens.map(t => t.primary).join(''),
+    /**
+     * 表示用ローマ字:
+     * - 確定済み部分: 実際に打ったキー (typedSoFar)
+     * - 入力中トークン: 打ちかけ + アクティブパターンの残り
+     * - 未入力トークン: primary（スポーン時に固定）
+     */
+    displayRomaji: (s): string => {
+      let display = s.typedSoFar
+      const idx = s.currentKanaIndex
+      if (idx < s.currentTokens.length) {
+        const cur = s.currentTokens[idx]
+        if (s.currentKanaTyped) {
+          const active = cur.patterns.find(p => p.startsWith(s.currentKanaTyped)) ?? cur.primary
+          display += active
+        } else {
+          display += cur.primary
+        }
+        for (let i = idx + 1; i < s.currentTokens.length; i++) {
+          display += s.currentTokens[i].primary
+        }
+      }
+      return display
+    },
 
     /** 入力済み文字数（表示ハイライト用） */
-    matchedDisplayLength: (s): number => {
-      let len = 0
-      for (let i = 0; i < Math.min(s.currentKanaIndex, s.currentTokens.length); i++) {
-        len += s.currentTokens[i].primary.length
-      }
-      if (s.currentKanaIndex < s.currentTokens.length) {
-        const cur = s.currentTokens[s.currentKanaIndex]
-        len += Math.min(s.currentKanaTyped.length, cur.primary.length)
-      }
-      return len
-    },
+    matchedDisplayLength: (s): number =>
+      s.typedSoFar.length + s.currentKanaTyped.length,
 
     accuracy: (s) =>
       s.totalKeystrokes === 0
@@ -94,7 +106,6 @@ export const useGameStore = defineStore('game', {
       this.combo = 0
       this.maxCombo = 0
       this.timeLeft = cfg.time
-      this.wave = 1
       this.wordsCompleted = 0
       this.totalKeystrokes = 0
       this.correctKeystrokes = 0
@@ -107,12 +118,12 @@ export const useGameStore = defineStore('game', {
       this._spawnWord()
     },
 
-    /** 現在のウェーブと難易度に応じた単語プールを返す */
+    /** 難易度に応じた単語プールを返す */
     _getWordPool(): Word[] {
       const diffFilter: Record<Difficulty, (1 | 2 | 3)[]> = {
         easy:   [1],
-        normal: this.wave <= 2 ? [1] : this.wave <= 4 ? [1, 2] : [1, 2, 3],
-        hard:   this.wave <= 1 ? [1, 2] : [1, 2, 3],
+        normal: [1, 2],
+        hard:   [1, 2, 3],
       }
       return WORDS.filter(w => diffFilter[this.difficulty].includes(w.difficulty))
     },
@@ -122,22 +133,21 @@ export const useGameStore = defineStore('game', {
       const available = pool.filter(w => !this.usedRomaji.includes(w.romaji))
       const candidates = available.length > 0 ? available : pool
       const word = candidates[Math.floor(Math.random() * candidates.length)]
-      this.currentWord      = word
-      this.currentTokens    = tokenizeHiragana(word.hiragana)
-      this.currentKanaIndex = 0
-      this.currentKanaTyped = ''
+      this.currentWord          = word
+      this.currentTokens        = tokenizeHiragana(word.hiragana)
+      this.currentDisplayRomaji = this.currentTokens.map(t => t.primary).join('')
+      this.currentKanaIndex     = 0
+      this.currentKanaTyped     = ''
+      this.typedSoFar           = ''
       // 直近10単語を記憶して重複回避
       this.usedRomaji = [...this.usedRomaji.slice(-9), word.romaji]
     },
 
     _spawnEnemy() {
-      const maxWave = ENEMIES.length
-      const cycleWave = ((this.wave - 1) % maxWave) + 1
-      const cycleMult = Math.floor((this.wave - 1) / maxWave) + 1
-      const enemy = ENEMIES.find(e => e.wave === cycleWave) ?? ENEMIES[0]
+      const enemy = ENEMIES[Math.floor(Math.random() * ENEMIES.length)]
       this.currentEnemy = { ...enemy }
-      this.enemyHp = enemy.maxHp * cycleMult
-      this.enemyMaxHp = enemy.maxHp * cycleMult
+      this.enemyHp = enemy.maxHp
+      this.enemyMaxHp = enemy.maxHp
       this.enemyAnim = 'idle'
     },
 
@@ -159,6 +169,7 @@ export const useGameStore = defineStore('game', {
           return
         }
         this.correctKeystrokes++
+        this.typedSoFar += newTyped
         this.currentKanaTyped = ''
         this.currentKanaIndex++
         if (this.currentKanaIndex >= this.currentTokens.length) {
@@ -177,6 +188,7 @@ export const useGameStore = defineStore('game', {
       // ── 保留中の完全一致を確定して今回のキーを次トークンへ ────────
       // 例: ん(n保留中) の後に母音や別の子音が来た場合、n で ん を確定してから再処理
       if (this.currentKanaTyped && token.patterns.includes(this.currentKanaTyped)) {
+        this.typedSoFar += this.currentKanaTyped
         this.currentKanaTyped = ''
         this.currentKanaIndex++
         if (this.currentKanaIndex >= this.currentTokens.length) {
@@ -186,6 +198,16 @@ export const useGameStore = defineStore('game', {
         // 今回のキーを次のトークンで再処理（totalKeystrokes の二重計上を防ぐ）
         this.totalKeystrokes--
         this.onKeyPress(key)
+        return
+      }
+
+      const split = trySplitToken(token, newTyped)
+      if (split) {
+        this.correctKeystrokes++
+        this.typedSoFar += newTyped  // 1文字目（分割前トークンの先頭かな）を確定
+        this.currentTokens.splice(this.currentKanaIndex, 1, ...split)
+        this.currentKanaIndex++  // 1文字目完了 → 2文字目（小書き仮名）へ
+        this.currentKanaTyped = ''
         return
       }
 
@@ -214,7 +236,6 @@ export const useGameStore = defineStore('game', {
       if (this.enemyHp <= 0) {
         this.enemyAnim = 'dead'
         setTimeout(() => {
-          this.wave++
           this._spawnEnemy()
           this.showScorePopup = false
           this.tsukasaAnim = 'idle'

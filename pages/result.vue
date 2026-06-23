@@ -19,10 +19,6 @@
     <!-- 統計 -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value">{{ store.wave }}</div>
-        <div class="stat-label">到達ウェーブ</div>
-      </div>
-      <div class="stat-card">
         <div class="stat-value">{{ store.wordsCompleted }}</div>
         <div class="stat-label">撃破単語数</div>
       </div>
@@ -65,20 +61,17 @@ onMounted(() => {
 
 const resultText = computed(() => {
   if (store.tsukasaHp <= 0)  return '😢 GAME OVER'
-  if (store.wave >= 5)        return '🏆 PERFECT!'
   return '✨ 時間切れ'
 })
 
 const resultClass = computed(() => {
   if (store.tsukasaHp <= 0) return 'defeat'
-  if (store.wave >= 5)       return 'perfect'
   return 'timeout'
 })
 
 const resultSub = computed(() => {
   if (store.tsukasaHp <= 0) return 'つかさは倒れてしまった...'
-  if (store.wave >= 5)       return 'すべての敵を倒した！'
-  return `WAVE ${store.wave} まで進んだ！`
+  return `${store.wordsCompleted} 単語を入力した！`
 })
 
 const DIFF_COLORS  = { easy: '#44ff88', normal: '#ffd700', hard: '#ff4444' }

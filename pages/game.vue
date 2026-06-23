@@ -8,7 +8,6 @@
       <UiScoreBoard :score="store.score" />
       <div class="hud-center">
         <UiComboDisplay :combo="store.combo" />
-        <div class="wave-badge">WAVE {{ store.wave }}</div>
       </div>
       <UiTimer :time-left="store.timeLeft" :max-time="store.config.time" />
     </header>
@@ -135,16 +134,6 @@ watch(() => store.phase, (p) => {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-}
-.wave-badge {
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  color: #d4b8ff;
-  background: rgba(120, 0, 200, 0.3);
-  border: 1px solid rgba(160, 80, 255, 0.4);
-  border-radius: 4px;
-  padding: 1px 8px;
-  font-weight: 700;
 }
 
 /* ── HPバーセクション ──────────────────── */

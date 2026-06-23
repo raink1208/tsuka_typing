@@ -13,30 +13,11 @@
         </span>
       </div>
     </Transition>
-
-    <!-- 敵撃破バナー -->
-    <Transition name="wave-announce">
-      <div v-if="waveAnnouncing" class="wave-announce">
-        <span class="wave-label">WAVE {{ store.wave }}</span>
-        <span class="wave-sub">敵を撃破！</span>
-      </div>
-    </Transition>
   </Teleport>
 </template>
 
 <script setup lang="ts">
 const store = useGameStore()
-
-const waveAnnouncing = ref(false)
-let prevWave = store.wave
-
-watch(() => store.wave, (newWave) => {
-  if (newWave > prevWave) {
-    prevWave = newWave
-    waveAnnouncing.value = true
-    setTimeout(() => { waveAnnouncing.value = false }, 1400)
-  }
-})
 </script>
 
 <style scoped>
@@ -91,43 +72,4 @@ watch(() => store.wave, (newWave) => {
   to   { opacity: 0; }
 }
 
-.wave-announce {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 70;
-  pointer-events: none;
-}
-.wave-label {
-  font-size: 3rem;
-  font-weight: 900;
-  color: #ffd700;
-  text-shadow: 0 0 24px #ffd700, 0 0 48px #ffd70066;
-  letter-spacing: 0.15em;
-}
-.wave-sub {
-  font-size: 1.1rem;
-  color: #ff69b4;
-  text-shadow: 0 0 10px #ff69b4;
-  margin-top: 4px;
-}
-
-.wave-announce-enter-active {
-  animation: wave-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-.wave-announce-leave-active {
-  animation: wave-out 0.3s ease forwards;
-}
-@keyframes wave-pop {
-  from { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-  to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-@keyframes wave-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
 </style>
