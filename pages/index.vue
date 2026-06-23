@@ -62,9 +62,9 @@ const store = useGameStore()
 const selectedDiff = ref<'easy' | 'normal' | 'hard'>('normal')
 
 const difficulties = [
-  { value: 'easy'   as const, label: 'かんたん',   detail: '120秒 / やさしい単語',  color: '#44ff88' },
-  { value: 'normal' as const, label: 'ふつう',     detail: '90秒 / 普通の単語',    color: '#ffd700' },
-  { value: 'hard'   as const, label: 'むずかしい', detail: '60秒 / むずかしい単語', color: '#ff4444' },
+  { value: 'easy'   as const, label: 'かんたん',   detail: '70秒 / やさしい単語',  color: '#44ff88' },
+  { value: 'normal' as const, label: 'ふつう',     detail: '60秒 / 普通の単語',    color: '#ffd700' },
+  { value: 'hard'   as const, label: 'むずかしい', detail: '50秒 / むずかしい単語', color: '#ff4444' },
 ]
 
 function startGame() {

@@ -61,11 +61,11 @@ const KANA_MAP: Record<string, string[]> = {
   'ゆ': ['yu'],
   'よ': ['yo'],
   // ─── ら行 ────────────────────────────
-  'ら': ['ra'],
-  'り': ['ri'],
-  'る': ['ru'],
-  'れ': ['re'],
-  'ろ': ['ro'],
+  'ら': ['ra', 'na'],
+  'り': ['ri', 'ni'],
+  'る': ['ru', 'nu'],
+  'れ': ['re', 'ne'],
+  'ろ': ['ro', 'no'],
   // ─── わ行・ん ─────────────────────────
   'わ': ['wa'],
   'を': ['wo'],
@@ -100,7 +100,35 @@ const KANA_MAP: Record<string, string[]> = {
   'ぷ': ['pu'],
   'ぺ': ['pe'],
   'ぽ': ['po'],
+  // ─── 記号・長音符 ─────────────────────
+  'ー': ['-'],
+  '！': ['!'],
+  '？': ['?'],
+  '、': [','],
+  '。': ['.'],
+  '・': ['/'],
+  '～': ['-'],
   // ─── 拗音（単独かな + ゃゅょ） ────────
+  // て行・で行 + 小書き母音
+  'てぃ': ['teli', 'texi', 'thi'],
+  'てゅ': ['tyu'],
+  'でぃ': ['deli', 'dexi', 'dhi'],
+  'でゅ': ['dyu'],
+  // ふ + 小書き母音
+  'ふぁ': ['fa', 'fwa', 'fula', 'fuxa'],
+  'ふぃ': ['fi', 'fwi', 'fyi', 'fuli', 'fuxi'],
+  'ふぇ': ['fe', 'fwe', 'fye', 'fule', 'fuxe'],
+  'ふぉ': ['fo', 'fwo', 'fulo', 'fuxo'],
+  // つ + 小書き母音
+  'つぁ': ['tsa'],
+  'つぃ': ['tsi'],
+  'つぇ': ['tse'],
+  'つぉ': ['tso'],
+  // う + 小書き母音（ヴ行）
+  'うぁ': ['wha'],
+  'うぃ': ['wi', 'whi'],
+  'うぇ': ['we', 'whe'],
+  'うぉ': ['who'],
   'きゃ': ['kya'],
   'きゅ': ['kyu'],
   'きょ': ['kyo'],
@@ -119,9 +147,9 @@ const KANA_MAP: Record<string, string[]> = {
   'みゃ': ['mya'],
   'みゅ': ['myu'],
   'みょ': ['myo'],
-  'りゃ': ['rya'],
-  'りゅ': ['ryu'],
-  'りょ': ['ryo'],
+  'りゃ': ['rya', 'nya'],
+  'りゅ': ['ryu', 'nyu'],
+  'りょ': ['ryo', 'nyo'],
   'ぎゃ': ['gya'],
   'ぎゅ': ['gyu'],
   'ぎょ': ['gyo'],
@@ -134,6 +162,59 @@ const KANA_MAP: Record<string, string[]> = {
   'ぴゃ': ['pya'],
   'ぴゅ': ['pyu'],
   'ぴょ': ['pyo'],
+  // ─── 小書き仮名（単独）─────────────────
+  'ぁ': ['la', 'xa'],
+  'ぃ': ['li', 'xi'],
+  'ぅ': ['lu', 'xu'],
+  'ぇ': ['le', 'xe'],
+  'ぉ': ['lo', 'xo'],
+  'ゃ': ['lya', 'xya'],
+  'ゅ': ['lyu', 'xyu'],
+  'ょ': ['lyo', 'xyo'],
+  'ゎ': ['lwa', 'xwa'],
+}
+
+/**
+ * 小書き仮名の単独入力パターン（l / x プレフィックス）
+ * 拗音トークンを分割する際に、2文字目（小書き仮名）のパターンとして使用する。
+ */
+export const SMALL_KANA_STANDALONE: Record<string, string[]> = {
+  'ぁ': ['la', 'xa'],
+  'ぃ': ['li', 'xi'],
+  'ぅ': ['lu', 'xu'],
+  'ぇ': ['le', 'xe'],
+  'ぉ': ['lo', 'xo'],
+  'ゃ': ['lya', 'xya'],
+  'ゅ': ['lyu', 'xyu'],
+  'ょ': ['lyo', 'xyo'],
+  'ゎ': ['lwa', 'xwa'],
+}
+
+/**
+ * 拗音トークンを2つに分割する。
+ * typed が digraph の1文字目の完全なローマ字パターンである場合のみ分割を行う。
+ *
+ * 例: しょ + typed='si'  → [し(primary='si'), ょ(primary='lyo')]
+ *     しょ + typed='shi' → [し(primary='shi'), ょ(primary='lyo')]
+ *
+ * @returns 分割後のトークン配列、または null（分割不可・対象外）
+ */
+export function trySplitToken(token: KanaToken, typed: string): KanaToken[] | null {
+  if (token.kana.length !== 2) return null
+
+  const firstKana  = token.kana[0]
+  const secondKana = token.kana[1]
+
+  const firstPatterns  = KANA_MAP[firstKana]
+  const secondPatterns = SMALL_KANA_STANDALONE[secondKana]
+
+  if (!firstPatterns?.includes(typed)) return null
+  if (!secondPatterns) return null
+
+  return [
+    { kana: firstKana,  primary: typed,           patterns: firstPatterns  },
+    { kana: secondKana, primary: secondPatterns[0], patterns: secondPatterns },
+  ]
 }
 
 /**
