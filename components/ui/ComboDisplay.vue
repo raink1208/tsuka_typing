@@ -19,27 +19,26 @@ defineProps<{ combo: number }>()
   min-width: 90px;
 }
 .label {
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  color: #d4b8ff;
-  font-weight: 700;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: #7a6018;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 .value {
   font-family: 'Share Tech Mono', monospace;
   font-size: 1.6rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.35);
+  color: rgba(200,160,40,0.25);
   letter-spacing: 0.05em;
   transition: color 0.2s;
 }
-.x {
-  font-size: 1rem;
-  margin-right: 1px;
-}
+.x { font-size: 1rem; margin-right: 1px; }
 
 .active .value {
-  color: #ff69b4;
-  text-shadow: 0 0 10px #ff69b488;
+  color: #9060c0;
+  text-shadow: 0 0 10px rgba(144,96,192,0.6);
   animation: combo-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 

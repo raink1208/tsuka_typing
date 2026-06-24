@@ -31,40 +31,42 @@ const pct = computed(() =>
   transition: color 0.3s;
 }
 .label {
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  color: #d4b8ff;
-  font-weight: 700;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: #7a6018;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 .value {
   font-family: 'Share Tech Mono', monospace;
   font-size: 1.6rem;
-  color: #fff;
+  color: #d8cda0;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
 .bar-wrap {
   width: 80px;
   height: 4px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 2px;
+  background: rgba(90,60,20,0.4);
+  border-radius: 0;
   margin-top: 3px;
   overflow: hidden;
 }
 .bar {
   height: 100%;
-  background: #44ff88;
-  border-radius: 2px;
+  background: linear-gradient(90deg, #2e6644, #48a068);
+  border-radius: 0;
   transition: width 1s linear, background 0.5s;
 }
 
 .timer.urgent .value {
-  color: #ff4444;
-  text-shadow: 0 0 12px #ff4444;
+  color: #c44030;
+  text-shadow: 0 0 10px rgba(196,64,48,0.6);
   animation: tick-pulse 1s ease-in-out infinite;
 }
 .timer.urgent .bar {
-  background: #ff4444;
+  background: linear-gradient(90deg, #8b1a1a, #c44030);
 }
 @keyframes tick-pulse {
   0%, 100% { transform: scale(1); }

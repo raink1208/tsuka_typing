@@ -18,14 +18,18 @@ defineProps<{ word: Word | null }>()
 .kanji {
   font-size: 2.6rem;
   font-weight: 900;
-  color: #fff;
-  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+  color: #f0e8c8;
+  text-shadow:
+    0 0 14px rgba(200,160,40,0.5),
+    2px 2px 0 rgba(0,0,0,0.8);
   letter-spacing: 0.1em;
+  font-family: 'Noto Serif JP', serif;
 }
 .hiragana {
-  font-size: 1.1rem;
-  color: #d4b8ff;
+  font-size: 1.05rem;
+  color: #8a7a5a;
   margin-top: 0.2rem;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
+  font-family: 'Noto Serif JP', serif;
 }
 </style>

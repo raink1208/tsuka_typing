@@ -24,7 +24,7 @@ const store = useGameStore()
 .miss-flash {
   position: fixed;
   inset: 0;
-  background: rgba(255, 30, 30, 0.25);
+  background: rgba(139, 26, 26, 0.3);
   pointer-events: none;
   z-index: 50;
   animation: flash-out 0.4s ease forwards;
@@ -39,10 +39,11 @@ const store = useGameStore()
   top: 42%;
   left: 50%;
   transform: translateX(-50%);
+  font-family: 'Cinzel', serif;
   font-size: 2rem;
-  font-weight: 900;
-  color: #ffd700;
-  text-shadow: 0 0 16px #ffd700, 0 2px 4px rgba(0,0,0,0.8);
+  font-weight: 700;
+  color: #e8c85a;
+  text-shadow: 0 0 16px rgba(200,160,40,0.9), 0 2px 4px rgba(0,0,0,0.9);
   z-index: 60;
   pointer-events: none;
   display: flex;
@@ -51,9 +52,10 @@ const store = useGameStore()
   gap: 4px;
 }
 .combo-bonus {
-  font-size: 1rem;
-  color: #ff69b4;
-  text-shadow: 0 0 10px #ff69b4;
+  font-size: 0.9rem;
+  color: #9060c0;
+  text-shadow: 0 0 10px rgba(144,96,192,0.7);
+  letter-spacing: 0.1em;
 }
 
 .score-pop-enter-active {
@@ -71,5 +73,4 @@ const store = useGameStore()
   from { opacity: 1; }
   to   { opacity: 0; }
 }
-
 </style>

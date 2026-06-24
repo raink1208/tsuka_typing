@@ -1,5 +1,11 @@
 <template>
   <div class="game-screen" :class="{ 'miss-shake': store.showMissFlash }">
+    <!-- コーナー装飾 -->
+    <span class="corner corner-tl" aria-hidden="true" />
+    <span class="corner corner-tr" aria-hidden="true" />
+    <span class="corner corner-bl" aria-hidden="true" />
+    <span class="corner corner-br" aria-hidden="true" />
+
     <!-- エフェクトオーバーレイ -->
     <BattleAttackEffect />
 
@@ -51,6 +57,11 @@
 
     <!-- ── タイピングエリア ─────────── -->
     <section class="typing-section" :class="{ transitioning: store.transitioning }">
+      <span class="corner corner-tl" aria-hidden="true" />
+      <span class="corner corner-tr" aria-hidden="true" />
+      <span class="corner corner-bl" aria-hidden="true" />
+      <span class="corner corner-br" aria-hidden="true" />
+
       <!-- 入力キャプチャ（非表示） -->
       <TypingInputField ref="inputFieldRef" @char="store.onKeyPress" />
 
@@ -63,7 +74,7 @@
         />
       </div>
 
-      <div class="input-hint">クリックしてフォーカス / ローマ字を入力</div>
+      <div class="input-hint">クリックして呪文を詠唱</div>
     </section>
   </div>
 </template>
@@ -95,6 +106,20 @@ watch(() => store.phase, (p) => {
 </script>
 
 <style scoped>
+/* ── コーナー装飾（共通） ──────────────── */
+.corner {
+  position: absolute;
+  display: block;
+  width: 16px;
+  height: 16px;
+  z-index: 2;
+  pointer-events: none;
+}
+.corner-tl { top: -1px;    left: -1px;   border-top: 2px solid #c8a028; border-left: 2px solid #c8a028; }
+.corner-tr { top: -1px;    right: -1px;  border-top: 2px solid #c8a028; border-right: 2px solid #c8a028; }
+.corner-bl { bottom: -1px; left: -1px;   border-bottom: 2px solid #c8a028; border-left: 2px solid #c8a028; }
+.corner-br { bottom: -1px; right: -1px;  border-bottom: 2px solid #c8a028; border-right: 2px solid #c8a028; }
+
 /* ── 全体レイアウト ─────────────────────── */
 .game-screen {
   position: relative;
@@ -105,17 +130,18 @@ watch(() => store.phase, (p) => {
   flex-direction: column;
   gap: 6px;
   padding: 10px 14px 12px;
-  background: linear-gradient(180deg, rgba(15,0,35,0.97) 0%, rgba(8,0,20,0.99) 100%);
-  border: 1px solid rgba(160, 80, 255, 0.25);
-  border-radius: 12px;
+  background: linear-gradient(180deg, #1c1508 0%, #100c06 100%);
+  border: 1px solid #5a3c14;
+  border-radius: 0;
   overflow: hidden;
 }
 .game-screen::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% -10%, rgba(120, 0, 200, 0.14) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 50% -5%, rgba(100,60,0,0.14) 0%, transparent 55%);
   pointer-events: none;
+  z-index: 0;
 }
 
 /* ── HUD ───────────────────────────────── */
@@ -123,11 +149,13 @@ watch(() => store.phase, (p) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(10, 8, 4, 0.72);
+  border-radius: 0;
+  border: 1px solid #4a3218;
   padding: 8px 16px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 .hud-center {
   display: flex;
@@ -142,10 +170,12 @@ watch(() => store.phase, (p) => {
   flex-direction: column;
   gap: 6px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(10, 8, 4, 0.62);
+  border-radius: 0;
+  border: 1px solid #4a3218;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 .hp-row {
   display: flex;
@@ -153,15 +183,17 @@ watch(() => store.phase, (p) => {
   gap: 10px;
 }
 .hp-char-label {
-  font-size: 0.72rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
   font-weight: 700;
   white-space: nowrap;
   width: 80px;
   flex-shrink: 0;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
-.hp-char-label.player { color: #ff69b4; text-shadow: 0 0 6px #ff69b4; }
-.hp-char-label.enemy  { color: #ff4444; text-shadow: 0 0 6px #ff4444; }
+.hp-char-label.player { color: #9060c0; text-shadow: 0 0 6px rgba(144,96,192,0.5); }
+.hp-char-label.enemy  { color: #c44030; text-shadow: 0 0 6px rgba(196,64,48,0.5); }
 
 /* ── バトルエリア ───────────────────────── */
 .battle-area {
@@ -171,56 +203,74 @@ watch(() => store.phase, (p) => {
   justify-content: space-around;
   padding: 0 20px;
   min-height: 0;
+  position: relative;
+  z-index: 1;
 }
 .vs-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .vs-text {
-  font-size: 1.6rem;
+  font-family: 'Cinzel', serif;
+  font-size: 1.8rem;
   font-weight: 900;
-  color: #ffd700;
-  text-shadow: 0 0 16px #ffd700;
-  letter-spacing: 0.2em;
+  color: #c8a028;
+  text-shadow: 0 0 18px rgba(200,160,40,0.7);
+  letter-spacing: 0.25em;
 }
 .lightning {
-  font-size: 1.4rem;
-  animation: lightning-flicker 1.5s ease-in-out infinite;
+  font-size: 1.1rem;
+  animation: ember-flicker 2s ease-in-out infinite;
 }
-@keyframes lightning-flicker {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
+@keyframes ember-flicker {
+  0%, 100% { opacity: 1;   filter: brightness(1); }
+  35%       { opacity: 0.6; filter: brightness(1.6); }
+  70%       { opacity: 0.8; filter: brightness(0.8); }
 }
 
-/* ── タイピングセクション ─────────────── */
+/* ── タイピングセクション（ルーン石板） ── */
 .typing-section {
   position: relative;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(160, 80, 255, 0.3);
-  border-radius: 10px;
-  padding: 14px 20px 12px;
+  background: linear-gradient(180deg, rgba(8,6,2,0.92) 0%, rgba(14,10,4,0.96) 100%);
+  border: 1px solid #7a5c28;
+  border-radius: 0;
+  padding: 16px 20px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
   transition: opacity 0.2s;
+  z-index: 1;
+  box-shadow:
+    inset 0 1px 0 rgba(200,160,40,0.07),
+    inset 0 -1px 0 rgba(0,0,0,0.6),
+    0 0 28px rgba(0,0,0,0.7);
 }
+.typing-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(200,160,40,0.04) 0%, transparent 65%);
+  pointer-events: none;
+}
+.typing-section .corner { width: 12px; height: 12px; }
 .typing-section.transitioning {
   opacity: 0.4;
 }
 .romaji-wrap {
-  padding: 6px 12px;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(122,92,40,0.35);
 }
 .input-hint {
-  font-size: 0.6rem;
-  color: rgba(255,255,255,0.2);
-  letter-spacing: 0.05em;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  color: rgba(122,92,40,0.55);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* ── ミスシェイク ─────────────────────── */

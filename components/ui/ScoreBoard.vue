@@ -17,16 +17,18 @@ defineProps<{ score: number }>()
   min-width: 110px;
 }
 .label {
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  color: #d4b8ff;
-  font-weight: 700;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  color: #7a6018;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 .value {
   font-family: 'Share Tech Mono', monospace;
   font-size: 1.6rem;
-  color: #ffd700;
-  text-shadow: 0 0 10px #ffd70088;
+  color: #e8c85a;
+  text-shadow: 0 0 10px rgba(200,160,40,0.6);
   font-weight: 700;
   letter-spacing: 0.05em;
 }

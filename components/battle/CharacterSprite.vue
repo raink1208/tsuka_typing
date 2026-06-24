@@ -85,28 +85,29 @@ const imgSrc = computed(() =>
   position: absolute;
   inset: 10px;
   border-radius: 50%;
-  border: 3px solid #ff69b4;
-  box-shadow: 0 0 16px #ff69b4, inset 0 0 16px rgba(255, 105, 180, 0.15);
+  border: 3px solid #9060c0;
+  box-shadow: 0 0 16px rgba(144,96,192,0.5), inset 0 0 16px rgba(144,96,192,0.1);
 }
 .placeholder-icon {
   font-size: 3rem;
   z-index: 1;
-  filter: drop-shadow(0 0 8px #ffd700);
+  filter: drop-shadow(0 0 8px rgba(200,160,40,0.6));
 }
 .placeholder-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse, rgba(255, 105, 180, 0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(144,96,192,0.1) 0%, transparent 70%);
   border-radius: 50%;
 }
 
 .char-name {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #ff69b4;
-  text-shadow: 0 0 8px #ff69b4;
+  color: #9060c0;
+  text-shadow: 0 0 8px rgba(144,96,192,0.6);
   letter-spacing: 0.05em;
   white-space: nowrap;
+  font-family: 'Noto Serif JP', serif;
 }
 
 /* ── アニメーション状態 ── */

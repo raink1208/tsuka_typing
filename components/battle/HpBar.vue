@@ -38,47 +38,46 @@ const colorClass = computed(() => {
 .hp-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   margin-bottom: 4px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
-.name { color: #d4b8ff; }
-.value { color: #aaa; font-family: 'Share Tech Mono', monospace; }
+.name { color: #8a7a5a; font-family: 'Noto Serif JP', serif; }
+.value { color: #5a4a28; font-family: 'Share Tech Mono', monospace; }
 .bar-track {
-  height: 12px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.1);
+  height: 11px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 0;
+  border: 1px solid rgba(90,60,20,0.5);
   overflow: hidden;
 }
 .bar-fill {
   height: 100%;
-  border-radius: 6px;
+  border-radius: 0;
   transition: width 0.3s ease;
 }
 .hp-high {
-  background: linear-gradient(90deg, #22cc55, #44ff88);
-  box-shadow: 0 0 8px #44ff88aa;
+  background: linear-gradient(90deg, #2e6644, #48a068);
+  box-shadow: 0 0 8px rgba(72,160,104,0.5);
 }
 .hp-mid {
-  background: linear-gradient(90deg, #cc8800, #ffcc00);
-  box-shadow: 0 0 8px #ffcc00aa;
+  background: linear-gradient(90deg, #7a5c10, #c8a028);
+  box-shadow: 0 0 8px rgba(200,160,40,0.4);
   animation: hp-flash 0.5s ease 1;
 }
 .hp-low {
-  background: linear-gradient(90deg, #cc2200, #ff4422);
-  box-shadow: 0 0 8px #ff4422aa;
+  background: linear-gradient(90deg, #8b1a1a, #c44030);
+  box-shadow: 0 0 8px rgba(196,64,48,0.4);
   animation: hp-flash 0.5s ease 1;
 }
 .enemy-bar {
-  background: linear-gradient(90deg, #880022, #ff2244);
-  box-shadow: 0 0 8px #ff2244aa;
+  background: linear-gradient(90deg, #6b1010, #c44030);
+  box-shadow: 0 0 8px rgba(196,64,48,0.4);
 }
 
 @keyframes hp-flash {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  50%       { opacity: 0.45; }
 }
 </style>
