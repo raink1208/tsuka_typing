@@ -23,7 +23,7 @@ export const WORDS: Word[] = [
   { kanji: '額ずけ諸君！', hiragana: 'ぬかずけしょくん！', romaji: 'nukazukesyokun!', difficulty: 1, points: 0 },
   { kanji: '最強天才中学生', hiragana: 'さいきょうてんさいちゅうがくせい', romaji: 'saikyoutennsaityuugakusei', difficulty: 1, points: 0 },
   { kanji: 'つかさキングダム', hiragana: 'つかさきんぐだむ', romaji: 'tsukasakingudamu', difficulty: 1, points: 0 },
-  { kanji: '人類皆ドM理論', hiragana: 'じんるいみんなどえむりろん', romaji: 'jinnruiminnnadomrironn', difficulty: 1, points: 0 },
+  { kanji: '人類皆ドM理論', hiragana: 'じんるいみんなどえむりろん', romaji: 'jinnruiminnnadoemurironn', difficulty: 1, points: 0 },
   { kanji: '破滅願望', hiragana: 'はめつがんぼう', romaji: 'hametugannbou', difficulty: 1, points: 0 },
   { kanji: 'チンチンのホットミルク', hiragana: 'ちんちんのほっとみるく', romaji: 'tintinnohottomiruku', difficulty: 1, points: 0 },
   { kanji: 'ファナモ', hiragana: 'ふぁなも', romaji: 'fanamo', difficulty: 1, points: 0 },
