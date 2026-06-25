@@ -30,6 +30,8 @@ export const WORDS: Word[] = [
   { kanji: 'メスガキ', hiragana: 'めすがき', romaji: 'mesugaki', difficulty: 1, points: 0 },
   { kanji: 'マイクロビキニ', hiragana: 'まいくろびきに', romaji: 'maikurobikini', difficulty: 1, points: 0 },
   { kanji: '脾臓2倍', hiragana: 'ひぞうにばい', romaji: 'hizou2bai', difficulty: 1, points: 0 },
+  { kanji: 'シングルタスク', hiragana: 'しんぐるたすく', romaji: 'singurutasuku', difficulty: 1, points: 0 },
+  { kanji: '復活', hiragana: 'ふっかつ', romaji: 'fukkatu', difficulty: 1, points: 0 },
   // ─── ハッシュタグ ───────────────────────────────────
   { kanji: 'つかさ国営放送', hiragana: 'つかさこくえいほうそう', romaji: 'tsukasakokueihousou', difficulty: 1, points: 0 },
   { kanji: 'つかさ肖像画', hiragana: 'つかさしょうぞうが', romaji: 'tsukasasyouzouga', difficulty: 1, points: 0 },
@@ -53,13 +55,33 @@ export const WORDS: Word[] = [
   { kanji: '罪', hiragana: 'つみ', romaji: 'tumi', difficulty: 1, points: 0 },
   { kanji: 'ぼくのいぬ', hiragana: 'ぼくのいぬ', romaji: 'bokunoinu', difficulty: 1, points: 0 },
   // ─── セリフ ───────────────────────────────────
-  { kanji: 'でかいケツで解決', hiragana: 'でかいけつでかいけつ', romaji: 'dekaiketudekaiketu', difficulty: 1, points: 0 },
   { kanji: 'GOD', hiragana: 'god', romaji: 'god', difficulty: 1, points: 0 },
   { kanji: '御意', hiragana: 'ぎょい', romaji: 'gyoi', difficulty: 1, points: 0 },
   { kanji: 'おつかさ', hiragana: 'おつかさ', romaji: 'otsukasa', difficulty: 1, points: 0 },
   { kanji: 'でっかぁ', hiragana: 'でっかぁ', romaji: 'dekkala', difficulty: 1, points: 0 },
   { kanji: 'よわよわ～', hiragana: 'よわよわー', romaji: 'yowayowa-', difficulty: 1, points: 0 },
   { kanji: 'すやすやぷぅぷぅ', hiragana: 'すやすやぷぅぷぅ', romaji: 'suyasuyapulupulu', difficulty: 1, points: 0 },
+  { kanji: 'タマタマ教', hiragana: 'たまたまきょう', romaji: 'tamatamakyou', difficulty: 1, points: 0 },
+  { kanji: '鳥天', hiragana: 'とりてん', romaji: 'toritenn', difficulty: 1, points: 0 },
+    // ─── ダジャレ ───────────────────────────────────
+  { kanji: '雑魚どもVSザ子供', hiragana: 'ざこどもVSざこども', romaji: 'zakodomovszakodomo', difficulty: 1, points: 0 },
+  { kanji: 'マイカーが潰れた、まーいっか', hiragana: 'まいかーがつぶれた、まーいっか', romaji: 'maika-gatsubureta, ma-ikka', difficulty: 1, points: 0 },
+  { kanji: '汗がダックダック', hiragana: 'あせがだっくだっく', romaji: 'asegadakkudakku', difficulty: 1, points: 0 },
+  { kanji: '活発なカッパ2', hiragana: 'かっぱつなかっぱつー', romaji: 'kappatunakappatu-', difficulty: 1, points: 0 },
+  { kanji: '奴は四天王、八つ橋天皇', hiragana: 'やつはしてんのう、やつはしてんのう', romaji: 'yatuhasitennnou,yatuhasitennnou', difficulty: 1, points: 0 },
+  { kanji: 'ゾウ2頭に雑煮投下', hiragana: 'ぞうにとうにぞうにとうか', romaji: 'zounitounizounitouka', difficulty: 1, points: 0 },
+  { kanji: 'みたらし団子見たら死んだンゴ', hiragana: 'みたらしだんごみたらしんだんご', romaji: 'mitarasidanngomitarasinndanngo', difficulty: 1, points: 0 },
+  { kanji: '懲役くらって超エキサイティング', hiragana: 'ちょうえきくらってちょうえきさいてぃんぐ', romaji: 'tyouekikurattetyouekisaitelingu', difficulty: 1, points: 0 },
+  { kanji: '卵の数、エッグ～', hiragana: 'たまごのかず、えっぐー', romaji: 'tamagonokazu,eggu-', difficulty: 1, points: 0 },
+  { kanji: '液晶？え～きっしょ～', hiragana: 'えきしょう？えーきっしょー', romaji: 'ekisyou?e-kissyo-', difficulty: 1, points: 0 },
+  { kanji: 'セミと添い寝、セミダブルベッド', hiragana: 'せみとそいね、せみだぶるべっど', romaji: 'semitosoine,semidaburubeddo', difficulty: 1, points: 0 },
+  { kanji: 'でかいケツで解決', hiragana: 'でかいけつでかいけつ', romaji: 'dekaiketudekaiketu', difficulty: 1, points: 0 },
+  { kanji: '誘拐したのはYouかい？', hiragana: 'ゆうかいしたのはyouかい？', romaji: 'yuukaisitanohayoukai?', difficulty: 1, points: 0 },
+  { kanji: '宇宙の中学生、うちゅうがくせい', hiragana: 'うちゅうのちゅうがくせい、うちゅうがくせい', romaji: 'utyuunotyuugakusei,utyuugakusei', difficulty: 1, points: 0 },
+  { kanji: 'カメ、ラクダ、サイ。カメラくださーい', hiragana: 'かめ、らくだ、さい、かめらくださーい', romaji: 'kame,rakuda,sai,kamerakudasa-i', difficulty: 1, points: 0 },
+  { kanji: '犬がいぬ！', hiragana: 'いぬがいぬ！', romaji: 'inugainu!', difficulty: 1, points: 0 },
+  { kanji: '浮き輪ウキウキ', hiragana: 'うきわうきうき', romaji: 'ukiwaukiuki', difficulty: 1, points: 0 },
+  { kanji: '太陽当たんないよう', hiragana: 'たいようあたんないよう', romaji: 'taiyouatannnaiyou', difficulty: 1, points: 0 },
   // ─── すぺしゃりてメンバー セリフ ───────────────────────────────────
   { kanji: 'その前に水を飲む！', hiragana: 'そのまえにみずをのむ！', romaji: 'sonomaenimizuwonomu!', difficulty: 1, points: 0 }
 ]
