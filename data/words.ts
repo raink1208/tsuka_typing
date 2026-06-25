@@ -53,12 +53,12 @@ export const WORDS: Word[] = [
   { kanji: '罪', hiragana: 'つみ', romaji: 'tumi', difficulty: 1, points: 0 },
   { kanji: 'ぼくのいぬ', hiragana: 'ぼくのいぬ', romaji: 'bokunoinu', difficulty: 1, points: 0 },
   // ─── セリフ ───────────────────────────────────
-  { kanji: 'くらくらちゅ', hiragana: 'くらくらちゅ', romaji: 'kurakurachu', difficulty: 1, points: 0 },
   { kanji: 'でかいケツで解決', hiragana: 'でかいけつでかいけつ', romaji: 'dekaiketudekaiketu', difficulty: 1, points: 0 },
-  { kanji: 'GOD', hiragana: 'GOD', romaji: 'god', difficulty: 1, points: 0 },
+  { kanji: 'GOD', hiragana: 'god', romaji: 'god', difficulty: 1, points: 0 },
   { kanji: '御意', hiragana: 'ぎょい', romaji: 'gyoi', difficulty: 1, points: 0 },
   { kanji: 'おつかさ', hiragana: 'おつかさ', romaji: 'otsukasa', difficulty: 1, points: 0 },
   { kanji: 'でっかぁ', hiragana: 'でっかぁ', romaji: 'dekkala', difficulty: 1, points: 0 },
+  { kanji: 'よわよわ～', hiragana: 'よわよわー', romaji: 'yowayowa-', difficulty: 1, points: 0 },
   { kanji: 'すやすやぷぅぷぅ', hiragana: 'すやすやぷぅぷぅ', romaji: 'suyasuyapulupulu', difficulty: 1, points: 0 },
   // ─── すぺしゃりてメンバー セリフ ───────────────────────────────────
   { kanji: 'その前に水を飲む！', hiragana: 'そのまえにみずをのむ！', romaji: 'sonomaenimizuwonomu!', difficulty: 1, points: 0 }
@@ -66,48 +66,12 @@ export const WORDS: Word[] = [
 
 export const ENEMIES: Enemy[] = [
   {
-    id: 'slime',
-    name: 'スライム',
-    emoji: '🫧',
+    id: 'tsukasa',
+    name: '領国つかさ',
+    emoji: '🐱',
     maxHp: 150,
     attackPower: 0,
     color: '#44ff88',
     description: 'よわよわの敵',
-  },
-  {
-    id: 'goblin',
-    name: 'ゴブリン',
-    emoji: '👺',
-    maxHp: 300,
-    attackPower: 3,
-    color: '#88cc44',
-    description: '素早く動く悪党',
-  },
-  {
-    id: 'wizard',
-    name: '闇の魔術師',
-    emoji: '🧙',
-    maxHp: 480,
-    attackPower: 7,
-    color: '#aa44ff',
-    description: '呪文で攻撃してくる',
-  },
-  {
-    id: 'dragon',
-    name: 'ドラゴン',
-    emoji: '🐉',
-    maxHp: 700,
-    attackPower: 12,
-    color: '#ff6644',
-    description: '伝説の炎龍',
-  },
-  {
-    id: 'demon',
-    name: '大魔王',
-    emoji: '👿',
-    maxHp: 1000,
-    attackPower: 20,
-    color: '#ff0044',
-    description: '究極の悪魔',
   },
 ]

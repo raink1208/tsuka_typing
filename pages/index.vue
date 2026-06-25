@@ -17,7 +17,6 @@
       <span class="corner corner-bl" aria-hidden="true" />
       <span class="corner corner-br" aria-hidden="true" />
       <p class="subtitle-en">Typing Chronicle</p>
-      <h1 class="main-title">領国つかさ</h1>
       <p class="subtitle-jp">ローマ字タイピングバトル</p>
     </header>
 

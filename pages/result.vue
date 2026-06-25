@@ -52,7 +52,7 @@
     <!-- ボタン -->
     <div class="result-actions">
       <button class="btn-retry" @click="retry">再び挑む</button>
-      <button class="btn-title" @click="goTitle">王城へ帰還</button>
+      <button class="btn-title" @click="goTitle">タイトルへ戻る</button>
     </div>
 
     <!-- 難易度バッジ -->
