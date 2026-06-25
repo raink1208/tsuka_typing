@@ -9,6 +9,16 @@
     <!-- エフェクトオーバーレイ -->
     <BattleAttackEffect />
 
+    <!-- スタート待機オーバーレイ -->
+    <Transition name="ready-fade">
+      <div v-if="!isReady" class="ready-overlay">
+        <div class="ready-box">
+          <p class="ready-title">READY?</p>
+          <p class="ready-hint">スペースキーを押してスタート</p>
+        </div>
+      </div>
+    </Transition>
+
     <!-- ── 上部HUD ─────────────────── -->
     <header class="hud">
       <UiScoreBoard :score="store.score" />
@@ -86,6 +96,21 @@ const store = useGameStore()
 const { start, stop } = useGameLoop()
 
 const inputFieldRef = ref()
+const isReady = ref(false)
+
+function beginGame() {
+  if (isReady.value) return
+  isReady.value = true
+  start()
+  nextTick(() => inputFieldRef.value?.focus())
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (!isReady.value && e.code === 'Space') {
+    e.preventDefault()
+    beginGame()
+  }
+}
 
 // タイトルを経由していない場合はリダイレクト
 onMounted(() => {
@@ -93,11 +118,13 @@ onMounted(() => {
     navigateTo('/')
     return
   }
-  start()
-  nextTick(() => inputFieldRef.value?.focus())
+  window.addEventListener('keydown', onKeydown)
 })
 
-onUnmounted(() => stop())
+onUnmounted(() => {
+  stop()
+  window.removeEventListener('keydown', onKeydown)
+})
 
 // ゲーム終了 → リザルト画面へ
 watch(() => store.phase, (p) => {
@@ -284,4 +311,73 @@ watch(() => store.phase, (p) => {
   60%       { transform: translateX(-5px); }
   80%       { transform: translateX(5px); }
 }
+
+/* ── スタート待機オーバーレイ ─────────── */
+.ready-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 7, 3, 0.82);
+  cursor: pointer;
+}
+.ready-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 56px;
+  border: 1px solid #c8a028;
+  background: rgba(28, 21, 8, 0.95);
+  position: relative;
+}
+.ready-box::before,
+.ready-box::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+.ready-box::before {
+  top: -1px; left: -1px;
+  border-top: 2px solid #c8a028; border-left: 2px solid #c8a028;
+}
+.ready-box::after {
+  bottom: -1px; right: -1px;
+  border-bottom: 2px solid #c8a028; border-right: 2px solid #c8a028;
+}
+.ready-title {
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #f0d060;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 20px rgba(200,160,40,0.7);
+  margin: 0;
+  animation: ready-pulse 1.4s ease-in-out infinite;
+}
+.ready-hint {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  color: #c8a028;
+  letter-spacing: 0.15em;
+  margin: 0;
+}
+.ready-hint-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  color: rgba(122, 92, 40, 0.6);
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+@keyframes ready-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+.ready-fade-enter-active { transition: opacity 0.25s ease; }
+.ready-fade-leave-active { transition: opacity 0.3s ease; }
+.ready-fade-enter-from,
+.ready-fade-leave-to    { opacity: 0; }
 </style>
