@@ -32,6 +32,7 @@ export const WORDS: Word[] = [
   { kanji: '脾臓2倍', hiragana: 'ひぞうにばい', romaji: 'hizou2bai', difficulty: 1, points: 0 },
   { kanji: 'シングルタスク', hiragana: 'しんぐるたすく', romaji: 'singurutasuku', difficulty: 1, points: 0 },
   { kanji: '復活', hiragana: 'ふっかつ', romaji: 'fukkatu', difficulty: 1, points: 0 },
+  { kanji: '放課後DEATHタイム君に告白！', hiragana: 'ほうかごdeathたいむきみにこくはく！', romaji: 'houkagodeathtaimukiminikokuhaku!', difficulty: 1, points: 0 },
   // ─── ハッシュタグ ───────────────────────────────────
   { kanji: 'つかさ国営放送', hiragana: 'つかさこくえいほうそう', romaji: 'tsukasakokueihousou', difficulty: 1, points: 0 },
   { kanji: 'つかさ肖像画', hiragana: 'つかさしょうぞうが', romaji: 'tsukasasyouzouga', difficulty: 1, points: 0 },
@@ -44,6 +45,7 @@ export const WORDS: Word[] = [
   { kanji: '領国つかさの深夜通信', hiragana: 'りょうごくつかさのしんやつうしん', romaji: 'ryougokutsukasanoshinyatushin', difficulty: 1, points: 0 },
   { kanji: '謁見ティ～タイム', hiragana: 'えっけんてぃーたいむ', romaji: 'ekkenteli-taimu', difficulty: 1, points: 0 },
   // ─── 好物 ───────────────────────────────────
+  { kanji: 'ホラーゲーム', hiragana: 'ほらーげーむ', romaji: 'hora-ge-mu', difficulty: 1, points: 0 },
   { kanji: 'うなぎ', hiragana: 'うなぎ', romaji: 'unagi', difficulty: 1, points: 0 },
   { kanji: '朝マクー', hiragana: 'あさまくー', romaji: 'asamaku-', difficulty: 1, points: 0 },
   { kanji: 'ハートチップル焼肉にんにく焙煎味', hiragana: 'はーとちっぷるやきにくにんにくばいせんあじ', romaji: 'ha-totippuruyakinikuninnnikubaisennaji', difficulty: 1, points: 0 },
@@ -82,6 +84,7 @@ export const WORDS: Word[] = [
   { kanji: '犬がいぬ！', hiragana: 'いぬがいぬ！', romaji: 'inugainu!', difficulty: 1, points: 0 },
   { kanji: '浮き輪ウキウキ', hiragana: 'うきわうきうき', romaji: 'ukiwaukiuki', difficulty: 1, points: 0 },
   { kanji: '太陽当たんないよう', hiragana: 'たいようあたんないよう', romaji: 'taiyouatannnaiyou', difficulty: 1, points: 0 },
+  { kanji: '犬の卒倒、ワンパターン', hiragana: 'いぬのそっとう、わんぱたーん', romaji: 'inunosottou,wanpata-n', difficulty: 1, points: 0 },
   // ─── すぺしゃりてメンバー セリフ ───────────────────────────────────
   { kanji: 'その前に水を飲む！', hiragana: 'そのまえにみずをのむ！', romaji: 'sonomaenimizuwonomu!', difficulty: 1, points: 0 }
 ]

@@ -1,9 +1,24 @@
 import { defineStore } from 'pinia'
 import { WORDS, ENEMIES, type Word, type Enemy } from '~/data/words'
-import { tokenizeHiragana, trySplitToken, type KanaToken } from '~/composables/useRomaji'
+import { tokenizeHiragana, trySplitToken, RA_NA_OVERRIDES, type KanaToken } from '~/composables/useRomaji'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
+export type GameMode = 'normal' | 'ra-na'
 export type AnimState = 'idle' | 'attack' | 'damage' | 'dead'
+
+export interface GameRecord {
+  score: number
+  playTime: number        // 実プレイ秒数
+  totalKeystrokes: number // 入力文字数
+  correctKeystrokes: number // 正解文字数
+  missCount: number
+  accuracy: number        // %
+  kps: number             // 秒間タイプ数
+  maxCombo: number
+  difficulty: Difficulty
+  wordsCompleted: number
+  playedAt: string        // ISO 8601
+}
 
 interface DiffConfig {
   time: number
@@ -21,6 +36,7 @@ export const useGameStore = defineStore('game', {
   state: () => ({
     phase: 'title' as 'title' | 'battle' | 'result',
     difficulty: 'normal' as Difficulty,
+    gameMode: 'normal' as GameMode,
 
     score: 0,
     combo: 0,
@@ -29,6 +45,7 @@ export const useGameStore = defineStore('game', {
     wordsCompleted: 0,
     totalKeystrokes: 0,
     correctKeystrokes: 0,
+    elapsedTime: 0,
 
     tsukasaHp: 300,
     tsukasaMaxHp: 300,
@@ -52,6 +69,8 @@ export const useGameStore = defineStore('game', {
     lastEarnedScore: 0,
 
     usedRomaji: [] as string[],
+
+    lastRecord: null as GameRecord | null,
   }),
 
   getters: {
@@ -92,11 +111,22 @@ export const useGameStore = defineStore('game', {
       s.totalKeystrokes === 0
         ? 100
         : Math.round((s.correctKeystrokes / s.totalKeystrokes) * 100),
+
+    kps: (s) =>
+      s.elapsedTime > 0
+        ? Math.round((s.correctKeystrokes / s.elapsedTime) * 10) / 10
+        : 0,
+
+    missCount: (s) => s.totalKeystrokes - s.correctKeystrokes,
   },
 
   actions: {
     setDifficulty(d: Difficulty) {
       this.difficulty = d
+    },
+
+    setGameMode(m: GameMode) {
+      this.gameMode = m
     },
 
     startGame() {
@@ -109,6 +139,7 @@ export const useGameStore = defineStore('game', {
       this.wordsCompleted = 0
       this.totalKeystrokes = 0
       this.correctKeystrokes = 0
+      this.elapsedTime = 0
       this.tsukasaHp = cfg.tsukasaMaxHp
       this.tsukasaMaxHp = cfg.tsukasaMaxHp
       this.usedRomaji = []
@@ -134,7 +165,7 @@ export const useGameStore = defineStore('game', {
       const candidates = available.length > 0 ? available : pool
       const word = candidates[Math.floor(Math.random() * candidates.length)]
       this.currentWord          = word
-      this.currentTokens        = tokenizeHiragana(word.hiragana)
+      this.currentTokens        = tokenizeHiragana(word.hiragana, this.gameMode === 'ra-na' ? RA_NA_OVERRIDES : undefined)
       this.currentDisplayRomaji = this.currentTokens.map(t => t.primary).join('')
       this.currentKanaIndex     = 0
       this.currentKanaTyped     = ''
@@ -201,7 +232,7 @@ export const useGameStore = defineStore('game', {
         return
       }
 
-      const split = trySplitToken(token, newTyped)
+      const split = trySplitToken(token, newTyped, this.gameMode === 'ra-na' ? RA_NA_OVERRIDES : undefined)
       if (split) {
         this.correctKeystrokes++
         this.typedSoFar += newTyped  // 1文字目（分割前トークンの先頭かな）を確定
@@ -285,7 +316,30 @@ export const useGameStore = defineStore('game', {
     },
 
     endGame() {
+      this.elapsedTime = DIFF_CONFIG[this.difficulty].time - this.timeLeft
       this.phase = 'result'
+
+      const missCount = this.totalKeystrokes - this.correctKeystrokes
+      const accuracy = this.totalKeystrokes === 0
+        ? 100
+        : Math.round((this.correctKeystrokes / this.totalKeystrokes) * 100)
+      const kps = this.elapsedTime > 0
+        ? Math.round((this.correctKeystrokes / this.elapsedTime) * 10) / 10
+        : 0
+
+      this.lastRecord = {
+        score:             this.score,
+        playTime:          this.elapsedTime,
+        totalKeystrokes:   this.totalKeystrokes,
+        correctKeystrokes: this.correctKeystrokes,
+        missCount,
+        accuracy,
+        kps,
+        maxCombo:          this.maxCombo,
+        difficulty:        this.difficulty,
+        wordsCompleted:    this.wordsCompleted,
+        playedAt:          new Date().toISOString(),
+      }
     },
 
     resetToTitle() {

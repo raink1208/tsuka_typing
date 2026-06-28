@@ -47,6 +47,24 @@
       </div>
     </section>
 
+    <!-- モード選択 -->
+    <section class="mode-section">
+      <p class="section-label">特殊ルール</p>
+      <button
+        :class="['mode-btn', { active: selectedMode === 'ra-na' }]"
+        @click="selectedMode = selectedMode === 'ra-na' ? 'normal' : 'ra-na'"
+      >
+        <span class="corner corner-tl" aria-hidden="true" />
+        <span class="corner corner-tr" aria-hidden="true" />
+        <span class="corner corner-bl" aria-hidden="true" />
+        <span class="corner corner-br" aria-hidden="true" />
+        <span class="mode-icon" aria-hidden="true">🔀</span>
+        <span class="mode-name">ら→な変換</span>
+        <span class="mode-detail">ら行をな行で入力する</span>
+        <span class="mode-badge" aria-hidden="true">{{ selectedMode === 'ra-na' ? 'ON' : 'OFF' }}</span>
+      </button>
+    </section>
+
     <!-- スタートボタン -->
     <button class="start-btn" @click="startGame">
       <span aria-hidden="true">⚔</span>
@@ -68,6 +86,7 @@ definePageMeta({ ssr: false })
 const store = useGameStore()
 
 const selectedDiff = ref<'easy' | 'normal' | 'hard'>('normal')
+const selectedMode = ref<'normal' | 'ra-na'>('normal')
 
 const difficulties = [
   { value: 'easy'   as const, label: 'かんたん',   detail: '70秒 / やさしい言葉', color: '#48a068', icon: '🌿' },
@@ -77,6 +96,7 @@ const difficulties = [
 
 function startGame() {
   store.setDifficulty(selectedDiff.value)
+  store.setGameMode(selectedMode.value)
   store.startGame()
   navigateTo('/game')
 }
@@ -309,6 +329,77 @@ onMounted(() => {
 .diff-btn.active .diff-detail {
   color: var(--d-color);
   opacity: 0.72;
+}
+
+/* ── モードセクション ──────────────────── */
+.mode-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+}
+.mode-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: #1a1208;
+  border: 1px solid #4a3218;
+  color: #6a5a38;
+  min-width: 280px;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.mode-btn .corner { width: 8px; height: 8px; }
+.mode-btn .corner-tl,
+.mode-btn .corner-tr,
+.mode-btn .corner-bl,
+.mode-btn .corner-br { border-color: #5a3c14; }
+.mode-btn:hover {
+  background: #221a0a;
+  border-color: #7a5c28;
+  color: #d8cda0;
+}
+.mode-btn.active {
+  background: #201808;
+  border-color: #8b5cf6;
+  color: #c4b5fd;
+  box-shadow: 0 0 16px rgba(139,92,246,0.18);
+}
+.mode-btn.active .corner-tl,
+.mode-btn.active .corner-tr,
+.mode-btn.active .corner-bl,
+.mode-btn.active .corner-br { border-color: #8b5cf6; }
+.mode-icon { font-size: 1.1rem; }
+.mode-name {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.mode-detail {
+  font-size: 0.6rem;
+  color: #5a4a28;
+  letter-spacing: 0.04em;
+  flex: 1;
+}
+.mode-btn.active .mode-detail { color: #a78bfa; opacity: 0.8; }
+.mode-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 2px 8px;
+  border: 1px solid #4a3218;
+  color: #5a4a28;
+  background: #120e06;
+}
+.mode-btn.active .mode-badge {
+  border-color: #8b5cf6;
+  color: #c4b5fd;
+  background: rgba(139,92,246,0.1);
 }
 
 /* ── スタートボタン ─────────────────────── */

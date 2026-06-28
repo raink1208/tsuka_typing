@@ -47,6 +47,24 @@
         <div class="stat-value">{{ store.accuracy }}<span class="stat-unit">%</span></div>
         <div class="stat-label">Accuracy</div>
       </div>
+      <div class="stat-card">
+        <span class="corner corner-tl" aria-hidden="true" />
+        <span class="corner corner-br" aria-hidden="true" />
+        <div class="stat-value">{{ store.kps }}<span class="stat-unit">kps</span></div>
+        <div class="stat-label">Keys / Sec</div>
+      </div>
+      <div class="stat-card">
+        <span class="corner corner-tl" aria-hidden="true" />
+        <span class="corner corner-br" aria-hidden="true" />
+        <div class="stat-value">{{ store.correctKeystrokes }}</div>
+        <div class="stat-label">Keys Typed</div>
+      </div>
+      <div class="stat-card" :class="{ danger: store.missCount > 0 }">
+        <span class="corner corner-tl" aria-hidden="true" />
+        <span class="corner corner-br" aria-hidden="true" />
+        <div class="stat-value">{{ store.missCount }}</div>
+        <div class="stat-label">Miss</div>
+      </div>
     </div>
 
     <!-- ボタン -->

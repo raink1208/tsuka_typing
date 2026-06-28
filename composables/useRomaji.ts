@@ -178,6 +178,21 @@ const KANA_MAP: Record<string, string[]> = {
  * 小書き仮名の単独入力パターン（l / x プレフィックス）
  * 拗音トークンを分割する際に、2文字目（小書き仮名）のパターンとして使用する。
  */
+/**
+ * ら行→な行モード用オーバーライドマップ
+ * このモードではら行の入力パターンがな行のみになる
+ */
+export const RA_NA_OVERRIDES: Record<string, string[]> = {
+  'ら': ['na'],
+  'り': ['ni'],
+  'る': ['nu'],
+  'れ': ['ne'],
+  'ろ': ['no'],
+  'りゃ': ['nya'],
+  'りゅ': ['nyu'],
+  'りょ': ['nyo'],
+}
+
 export const SMALL_KANA_STANDALONE: Record<string, string[]> = {
   'ぁ': ['la', 'xa'],
   'ぃ': ['li', 'xi'],
@@ -199,13 +214,18 @@ export const SMALL_KANA_STANDALONE: Record<string, string[]> = {
  *
  * @returns 分割後のトークン配列、または null（分割不可・対象外）
  */
-export function trySplitToken(token: KanaToken, typed: string): KanaToken[] | null {
+export function trySplitToken(
+  token: KanaToken,
+  typed: string,
+  overrides?: Record<string, string[]>,
+): KanaToken[] | null {
   if (token.kana.length !== 2) return null
 
   const firstKana  = token.kana[0]
   const secondKana = token.kana[1]
 
-  const firstPatterns  = KANA_MAP[firstKana]
+  const map = overrides ? { ...KANA_MAP, ...overrides } : KANA_MAP
+  const firstPatterns  = map[firstKana]
   const secondPatterns = SMALL_KANA_STANDALONE[secondKana]
 
   if (!firstPatterns?.includes(typed)) return null
@@ -221,9 +241,14 @@ export function trySplitToken(token: KanaToken, typed: string): KanaToken[] | nu
  * ひらがな文字列を KanaToken 配列に変換する。
  * 拗音・促音（っ）も正しく処理する。
  */
-export function tokenizeHiragana(hiragana: string): KanaToken[] {
+export function tokenizeHiragana(
+  hiragana: string,
+  overrides?: Record<string, string[]>,
+): KanaToken[] {
   const tokens: KanaToken[] = []
   let i = 0
+
+  const map = overrides ? { ...KANA_MAP, ...overrides } : KANA_MAP
 
   // ── Step 1: ひらがなをトークン分割 ─────────────────────────────
   while (i < hiragana.length) {
@@ -240,11 +265,11 @@ export function tokenizeHiragana(hiragana: string): KanaToken[] {
     // 拗音: 現在のかな + 小書き仮名（っ 以外）
     if (SMALL_KANA.has(next)) {
       const digraph = ch + next
-      if (KANA_MAP[digraph]) {
+      if (map[digraph]) {
         tokens.push({
           kana:     digraph,
-          primary:  KANA_MAP[digraph][0],
-          patterns: KANA_MAP[digraph],
+          primary:  map[digraph][0],
+          patterns: map[digraph],
         })
         i += 2
         continue
@@ -252,7 +277,7 @@ export function tokenizeHiragana(hiragana: string): KanaToken[] {
     }
 
     // 単独かな
-    const patterns = KANA_MAP[ch]
+    const patterns = map[ch]
     if (patterns) {
       tokens.push({ kana: ch, primary: patterns[0], patterns })
     } else {
