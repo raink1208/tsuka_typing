@@ -15,6 +15,7 @@
         <div class="ready-box">
           <p class="ready-title">READY?</p>
           <p class="ready-hint">スペースキーを押してスタート</p>
+          <p v-if="showImeWarning" class="ready-ime-warning">⚠ 半角モードに切り替えてください（半角/全角キー）</p>
         </div>
       </div>
     </Transition>
@@ -97,6 +98,7 @@ const { start, stop } = useGameLoop()
 
 const inputFieldRef = ref()
 const isReady = ref(false)
+const showImeWarning = ref(false)
 
 function beginGame() {
   if (isReady.value) return
@@ -107,7 +109,14 @@ function beginGame() {
 
 function onKeydown(e: KeyboardEvent) {
   if (!isReady.value && e.code === 'Space') {
+    // IMEが全角モードだと key が 'Process' になるか isComposing が true になる
+    if (e.key === 'Process' || e.isComposing) {
+      e.preventDefault()
+      showImeWarning.value = true
+      return
+    }
     e.preventDefault()
+    showImeWarning.value = false
     beginGame()
   }
 }
@@ -371,6 +380,14 @@ watch(() => store.phase, (p) => {
   color: rgba(122, 92, 40, 0.6);
   letter-spacing: 0.1em;
   margin: 0;
+}
+.ready-ime-warning {
+  font-size: 0.8rem;
+  color: #e06040;
+  text-shadow: 0 0 8px rgba(224,96,64,0.6);
+  letter-spacing: 0.05em;
+  margin: 0;
+  animation: ready-pulse 1s ease-in-out infinite;
 }
 @keyframes ready-pulse {
   0%, 100% { opacity: 1; }
