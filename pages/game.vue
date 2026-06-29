@@ -84,8 +84,6 @@
           :matched="store.matchedDisplayLength"
         />
       </div>
-
-      <div class="input-hint">クリックして呪文を詠唱</div>
     </section>
   </div>
 </template>

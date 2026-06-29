@@ -254,14 +254,15 @@ export const useGameStore = defineStore('game', {
       if (this.combo > this.maxCombo) this.maxCombo = this.combo
       this.wordsCompleted++
 
+      const romajiLength = this.currentWord.romaji.length
       const comboMult = 1 + Math.floor(this.combo / 5) * 0.5
-      const earned = Math.floor(this.currentWord.points * comboMult)
+      const earned = Math.floor(romajiLength * comboMult)
       this.score += earned
       this.lastEarnedScore = earned
       this.showScorePopup = true
       this.tsukasaAnim = 'attack'
 
-      const dmg = Math.floor(this.currentWord.points * 0.6)
+      const dmg = romajiLength
       this.enemyHp = Math.max(0, this.enemyHp - dmg)
 
       if (this.enemyHp <= 0) {
@@ -306,13 +307,13 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    tick() {
+    tick(deltaMs: number) {
       if (this.phase !== 'battle') return
       if (this.timeLeft <= 0) {
         this.endGame()
         return
       }
-      this.timeLeft--
+      this.timeLeft = Math.max(0, this.timeLeft - deltaMs / 1000)
     },
 
     endGame() {
