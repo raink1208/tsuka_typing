@@ -12,8 +12,9 @@
 const props = defineProps<{ timeLeft: number; maxTime: number }>()
 
 const formatted = computed(() => {
-  const m = Math.floor(Math.max(0, props.timeLeft) / 60)
-  const s = Math.max(0, props.timeLeft) % 60
+  const t = Math.floor(Math.max(0, props.timeLeft))
+  const m = Math.floor(t / 60)
+  const s = t % 60
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
 

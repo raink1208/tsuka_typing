@@ -35,6 +35,12 @@ function onKeydown(e: KeyboardEvent) {
     emit('char', e.key.toLowerCase())
     return
   }
+  // 数字キー（半角）
+  if (/^[0-9]$/.test(e.key)) {
+    e.preventDefault()
+    emit('char', e.key)
+    return
+  }
   // 記号・伸ばし棒に対応するキー
   if (/^[-!?,./]$/.test(e.key)) {
     e.preventDefault()
