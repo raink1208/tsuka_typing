@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
-import { WORDS, ENEMIES, type Word, type Enemy } from '~/data/words'
+import { ENEMIES, type Word, type Enemy } from '~/data/words'
 import { tokenizeHiragana, trySplitToken, RA_NA_OVERRIDES, type KanaToken } from '~/composables/useRomaji'
 
-export type Difficulty = 'easy' | 'normal' | 'hard'
 export type GameMode = 'normal' | 'ra-na'
 export type AnimState = 'idle' | 'attack' | 'damage' | 'dead'
 
@@ -31,6 +30,12 @@ const DIFF_CONFIG: Record<Difficulty, DiffConfig> = {
   normal: { time: 60,  tsukasaMaxHp: 300, dmgPerMiss: 10 },
   hard:   { time: 50,  tsukasaMaxHp: 200, dmgPerMiss: 20 },
 }
+
+/** 演出用ディレイ (ms) */
+const ENEMY_DEFEATED_DELAY_MS = 1600
+const WORD_TRANSITION_DELAY_MS = 600
+const MISS_FLASH_DURATION_MS = 500
+const MISS_GAMEOVER_DELAY_MS = 600
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -68,7 +73,12 @@ export const useGameStore = defineStore('game', {
     showScorePopup: false,
     lastEarnedScore: 0,
 
-    usedRomaji: [] as string[],
+    /** 出題単語列を決定するシード値（将来的にはサーバー発行値に置き換える） */
+    wordSeed: 0,
+    /** シードから決定論的に生成された出題単語列 */
+    wordSequence: [] as Word[],
+    /** wordSequence 内の現在位置 */
+    wordIndex: 0,
 
     lastRecord: null as GameRecord | null,
   }),
@@ -130,7 +140,7 @@ export const useGameStore = defineStore('game', {
     },
 
     startGame() {
-      const cfg = DIFF_CONFIG[this.difficulty]
+      const cfg = this.config
       this.phase = 'battle'
       this.score = 0
       this.combo = 0
@@ -142,36 +152,30 @@ export const useGameStore = defineStore('game', {
       this.elapsedTime = 0
       this.tsukasaHp = cfg.tsukasaMaxHp
       this.tsukasaMaxHp = cfg.tsukasaMaxHp
-      this.usedRomaji = []
       this.transitioning = false
       this.tsukasaAnim = 'idle'
+      // シード値から出題単語列を決定論的に生成する
+      // （同一シードであればサーバー側でも同じ単語列を再構築できる）
+      this.wordSeed = generateWordSeed()
+      this.wordSequence = generateWordSequence(this.wordSeed, this.difficulty)
+      this.wordIndex = 0
       this._spawnEnemy()
       this._spawnWord()
     },
 
-    /** 難易度に応じた単語プールを返す */
-    _getWordPool(): Word[] {
-      const diffFilter: Record<Difficulty, (1 | 2 | 3)[]> = {
-        easy:   [1],
-        normal: [1, 2],
-        hard:   [1, 2, 3],
-      }
-      return WORDS.filter(w => diffFilter[this.difficulty].includes(w.difficulty))
-    },
-
     _spawnWord() {
-      const pool = this._getWordPool()
-      const available = pool.filter(w => !this.usedRomaji.includes(w.romaji))
-      const candidates = available.length > 0 ? available : pool
-      const word = candidates[Math.floor(Math.random() * candidates.length)]
+      if (this.wordIndex >= this.wordSequence.length) {
+        // 想定外の長時間プレイに備えたフォールバック（通常到達しない）
+        this.wordIndex = 0
+      }
+      const word = this.wordSequence[this.wordIndex]
+      this.wordIndex++
       this.currentWord          = word
       this.currentTokens        = tokenizeHiragana(word.hiragana, this.gameMode === 'ra-na' ? RA_NA_OVERRIDES : undefined)
       this.currentDisplayRomaji = this.currentTokens.map(t => t.primary).join('')
       this.currentKanaIndex     = 0
       this.currentKanaTyped     = ''
       this.typedSoFar           = ''
-      // 直近10単語を記憶して重複回避
-      this.usedRomaji = [...this.usedRomaji.slice(-9), word.romaji]
     },
 
     _spawnEnemy() {
@@ -273,7 +277,7 @@ export const useGameStore = defineStore('game', {
           this.tsukasaAnim = 'idle'
           this._spawnWord()
           this.transitioning = false
-        }, 1600)
+        }, ENEMY_DEFEATED_DELAY_MS)
       } else {
         this.enemyAnim = 'damage'
         setTimeout(() => {
@@ -282,7 +286,7 @@ export const useGameStore = defineStore('game', {
           this.showScorePopup = false
           this._spawnWord()
           this.transitioning = false
-        }, 600)
+        }, WORD_TRANSITION_DELAY_MS)
       }
     },
 
@@ -290,7 +294,7 @@ export const useGameStore = defineStore('game', {
       this.combo = 0
       this.showMissFlash = true
 
-      const cfg = DIFF_CONFIG[this.difficulty]
+      const cfg = this.config
       const dmg = cfg.dmgPerMiss + (this.currentEnemy?.attackPower ?? 0)
       this.tsukasaHp = Math.max(0, this.tsukasaHp - dmg)
       this.tsukasaAnim = 'damage'
@@ -300,10 +304,10 @@ export const useGameStore = defineStore('game', {
         this.tsukasaAnim = 'idle'
         this.enemyAnim = 'idle'
         this.showMissFlash = false
-      }, 500)
+      }, MISS_FLASH_DURATION_MS)
 
       if (this.tsukasaHp <= 0) {
-        setTimeout(() => this.endGame(), 600)
+        setTimeout(() => this.endGame(), MISS_GAMEOVER_DELAY_MS)
       }
     },
 
@@ -317,25 +321,17 @@ export const useGameStore = defineStore('game', {
     },
 
     endGame() {
-      this.elapsedTime = DIFF_CONFIG[this.difficulty].time - this.timeLeft
+      this.elapsedTime = this.config.time - this.timeLeft
       this.phase = 'result'
-
-      const missCount = this.totalKeystrokes - this.correctKeystrokes
-      const accuracy = this.totalKeystrokes === 0
-        ? 100
-        : Math.round((this.correctKeystrokes / this.totalKeystrokes) * 100)
-      const kps = this.elapsedTime > 0
-        ? Math.round((this.correctKeystrokes / this.elapsedTime) * 10) / 10
-        : 0
 
       this.lastRecord = {
         score:             this.score,
         playTime:          this.elapsedTime,
         totalKeystrokes:   this.totalKeystrokes,
         correctKeystrokes: this.correctKeystrokes,
-        missCount,
-        accuracy,
-        kps,
+        missCount:         this.missCount,
+        accuracy:          this.accuracy,
+        kps:               this.kps,
         maxCombo:          this.maxCombo,
         difficulty:        this.difficulty,
         wordsCompleted:    this.wordsCompleted,

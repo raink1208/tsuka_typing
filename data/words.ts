@@ -29,6 +29,7 @@ export const WORDS: Word[] = [
   { kanji: 'ファナモ', hiragana: 'ふぁなも', romaji: 'fanamo', difficulty: 1 },
   { kanji: 'メスガキ', hiragana: 'めすがき', romaji: 'mesugaki', difficulty: 1 },
   { kanji: 'マイクロビキニ', hiragana: 'まいくろびきに', romaji: 'maikurobikini', difficulty: 2 },
+  { kanji: '白スク', hiragana: 'しろすく', romaji: 'sirosuku', difficulty: 1 },
   { kanji: '脾臓2倍', hiragana: 'ひぞうにばい', romaji: 'hizou2bai', difficulty: 1 },
   { kanji: 'シングルタスク', hiragana: 'しんぐるたすく', romaji: 'singurutasuku', difficulty: 2 },
   { kanji: '復活', hiragana: 'ふっかつ', romaji: 'fukkatu', difficulty: 1 },
@@ -45,11 +46,25 @@ export const WORDS: Word[] = [
   { kanji: 'ASMR', hiragana: 'ASMR', romaji: 'asmr', difficulty: 1 },
   { kanji: 'ドジっ子メイドつかさちゃん', hiragana: 'どじっこめいどつかさちゃん', romaji: 'dojikkomeidotsukasachan', difficulty: 3 },
   { kanji: 'つかナイト', hiragana: 'つかないと', romaji: 'tsukanaito', difficulty: 1 },
+  { kanji: 'なにぬねの', hiragana: 'なにぬねの', romaji: 'naninuneno', difficulty: 1 },
+  { kanji: 'らりるれろ', hiragana: 'らりるれろ', romaji: 'rarirurero', difficulty: 1 },
+  { kanji: '領国民', hiragana: 'りょうごくみん', romaji: 'ryougokumin', difficulty: 1 },
+  { kanji: 'ぬか漬け', hiragana: 'ぬかづけ', romaji: 'nukazuke', difficulty: 1 },
+  { kanji: '奇妙ちゃん', hiragana: 'きみょうちゃん', romaji: 'kimyouchan', difficulty: 1 },
+  { kanji: '15歳', hiragana: '15さい', romaji: '15sai', difficulty: 1 },
+  { kanji: '絶頂', hiragana: 'ぜっちょう', romaji: 'zettyou', difficulty: 1 },
+  { kanji: 'つか虐', hiragana: 'つかぎゃく', romaji: 'tsukagyaku', difficulty: 1 },
+  { kanji: '傲慢不遜', hiragana: 'ごうまんふそん', romaji: 'goumanhusonn', difficulty: 2 },
+  { kanji: '私立王成学園', hiragana: 'しりつおうじょがくえん', romaji: 'sirituojougakuenn', difficulty: 2 },
+  { kanji: '最強の国', hiragana: 'さいきょうのくに', romaji: 'saikyounokuni', difficulty: 2 },
+  { kanji: 'ヒステリック', hiragana: 'ひすてりっく', romaji: 'hisuterikku', difficulty: 1 },
+  { kanji: 'モラハラ', hiragana: 'もらはら', romaji: 'morahara', difficulty: 1 },
   // ─── ハッシュタグ ───────────────────────────────────
   { kanji: 'つかさ国営放送', hiragana: 'つかさこくえいほうそう', romaji: 'tsukasakokueihousou', difficulty: 2 },
   { kanji: 'つかさ肖像画', hiragana: 'つかさしょうぞうが', romaji: 'tsukasasyouzouga', difficulty: 2 },
   { kanji: '領国大使館', hiragana: 'りょうごくたいしかん', romaji: 'ryougokutaisikan', difficulty: 2 },
   { kanji: '切り抜け諸君', hiragana: 'きりぬけしょくん', romaji: 'kirinukesyokunn', difficulty: 2 },
+  { kanji: 'つかぬいちゃん', hiragana: 'つかぬいちゃん', romaji: 'tsukanuichann', difficulty: 1 },
   // ─── イベント ───────────────────────────────────
   { kanji: '絶対ぼくの領域', hiragana: 'ぜったいぼくのきんぐだむ', romaji: 'zettaibokunokingudamu', difficulty: 3 },
   { kanji: '禁断ノ幻想郷', hiragana: 'きんだんのあるかでぃあ', romaji: 'kindannnoarukadhia', difficulty: 2 },
@@ -105,7 +120,8 @@ export const WORDS: Word[] = [
   { kanji: 'この猛暑はもうしょうがない', hiragana: 'このもうしょはもうしょうがない', romaji: 'konomousyohamousyouganai', difficulty: 3 },
   { kanji: '王手で横転', hiragana: 'おうてでおうてん', romaji: 'outedeoutenn', difficulty: 1 },
   // ─── すぺしゃりてメンバー セリフ ───────────────────────────────────
-  { kanji: 'その前に水を飲む！', hiragana: 'そのまえにみずをのむ！', romaji: 'sonomaenimizuwonomu!', difficulty: 2 }
+  { kanji: 'その前に水を飲む！', hiragana: 'そのまえにみずをのむ！', romaji: 'sonomaenimizuwonomu!', difficulty: 2 },
+  { kanji: 'うっひょ～～～', hiragana: 'うっひょーーー', romaji: 'uhhyo---', difficulty: 1 },
 ]
 
 export const ENEMIES: Enemy[] = [

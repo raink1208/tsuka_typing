@@ -186,10 +186,6 @@ const KANA_MAP: Record<string, string[]> = {
 }
 
 /**
- * 小書き仮名の単独入力パターン（l / x プレフィックス）
- * 拗音トークンを分割する際に、2文字目（小書き仮名）のパターンとして使用する。
- */
-/**
  * ら行→な行モード用オーバーライドマップ
  * このモードではら行の入力パターンがな行のみになる
  */
@@ -204,17 +200,14 @@ export const RA_NA_OVERRIDES: Record<string, string[]> = {
   'りょ': ['nyo'],
 }
 
-export const SMALL_KANA_STANDALONE: Record<string, string[]> = {
-  'ぁ': ['la', 'xa'],
-  'ぃ': ['li', 'xi'],
-  'ぅ': ['lu', 'xu'],
-  'ぇ': ['le', 'xe'],
-  'ぉ': ['lo', 'xo'],
-  'ゃ': ['lya', 'xya'],
-  'ゅ': ['lyu', 'xyu'],
-  'ょ': ['lyo', 'xyo'],
-  'ゎ': ['lwa', 'xwa'],
-}
+/**
+ * 小書き仮名の単独入力パターン（l / x プレフィックス）
+ * 拗音トークンを分割する際に、2文字目（小書き仮名）のパターンとして使用する。
+ * KANA_MAP に既に定義済みのパターンを再利用し、定義の重複を避ける。
+ */
+export const SMALL_KANA_STANDALONE: Record<string, string[]> = Object.fromEntries(
+  [...SMALL_KANA].map(kana => [kana, KANA_MAP[kana]]),
+)
 
 /**
  * 拗音トークンを2つに分割する。
