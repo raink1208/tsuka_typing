@@ -1,6 +1,5 @@
 import { Hono } from 'hono'
-import { v4 as uuidv4 } from 'uuid'
-import db from '../db'
+import type { Bindings } from '../bindings'
 import { createToken, verifyToken, hashToken } from '../utils/token'
 import { simulateGame, checkAnomalies } from '../utils/replay'
 import { generateWordSequence } from '../shared/wordShuffle'
@@ -13,23 +12,21 @@ const VALID_GAME_MODES:   GameMode[]   = ['normal', 'ra-na']
 const MAX_KEYSTROKE_LOG   = 10_000
 const MAX_PLAYER_NAME_LEN = 30
 
-const SECRET = process.env.SERVER_SECRET ?? ''
-
-function getIp(c: { req: { header: (name: string) => string | undefined; raw: { socket?: { remoteAddress?: string } } } }): string {
+function getIp(c: { req: { header: (name: string) => string | undefined } }): string {
   return (
+    c.req.header('cf-connecting-ip') ??
     c.req.header('x-forwarded-for')?.split(',')[0].trim() ??
-    c.req.raw.socket?.remoteAddress ??
     'unknown'
   )
 }
 
-const game = new Hono()
+const game = new Hono<{ Bindings: Bindings }>()
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/game/start
 // ─────────────────────────────────────────────────────────────────────────────
 game.post('/start', async (c) => {
-  const ip = getIp(c as any)
+  const ip = getIp(c)
 
   // レートリミット: 同一 IP から 10 分間に最大 10 回
   if (!checkRateLimit(`start:${ip}`, 10, 600_000)) {
@@ -52,12 +49,13 @@ game.post('/start', async (c) => {
     return c.json({ error: 'INVALID_GAME_MODE' }, 400)
   }
 
+  const SECRET = c.env.SERVER_SECRET ?? ''
   if (!SECRET) {
     console.error('SERVER_SECRET is not set')
     return c.json({ error: 'SERVER_MISCONFIGURED' }, 500)
   }
 
-  const sessionId  = uuidv4()
+  const sessionId  = crypto.randomUUID()
   const wordSeed   = Math.floor(Math.random() * 0xffffffff)
   const startedAt  = Date.now()
 
@@ -69,13 +67,13 @@ game.post('/start', async (c) => {
     startedAt,
   }
 
-  const token     = createToken(payload, SECRET)
-  const tokenHash = hashToken(token)
+  const token     = await createToken(payload, SECRET)
+  const tokenHash = await hashToken(token)
 
-  db.prepare(`
+  await c.env.DB.prepare(`
     INSERT INTO game_sessions (id, difficulty, game_mode, word_seed, token_hash, started_at, ip_address)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(sessionId, difficulty, gameMode, wordSeed, tokenHash, startedAt, ip)
+  `).bind(sessionId, difficulty, gameMode, wordSeed, tokenHash, startedAt, ip).run()
 
   return c.json({ sessionId, wordSeed, token, serverTime: startedAt })
 })
@@ -84,7 +82,7 @@ game.post('/start', async (c) => {
 // POST /api/game/submit
 // ─────────────────────────────────────────────────────────────────────────────
 game.post('/submit', async (c) => {
-  const ip = getIp(c as any)
+  const ip = getIp(c)
 
   // レートリミット: 同一 IP から 1 時間に最大 30 回
   if (!checkRateLimit(`submit:${ip}`, 30, 3_600_000)) {
@@ -132,12 +130,13 @@ game.post('/submit', async (c) => {
     }
   }
 
+  const SECRET = c.env.SERVER_SECRET ?? ''
   if (!SECRET) {
     return c.json({ accepted: false, reason: 'SERVER_MISCONFIGURED' }, 500)
   }
 
   // ── セッショントークン検証 ────────────────────────────────────────
-  const payload = verifyToken(token, SECRET)
+  const payload = await verifyToken(token, SECRET)
   if (!payload) {
     return c.json({ accepted: false, reason: 'INVALID_TOKEN' }, 400)
   }
@@ -146,9 +145,9 @@ game.post('/submit', async (c) => {
   }
 
   // ── DB からセッション取得 ─────────────────────────────────────────
-  const session = db.prepare('SELECT * FROM game_sessions WHERE id = ?').get(sessionId) as
-    | { id: string; difficulty: string; game_mode: string; word_seed: number; token_hash: string; started_at: number; submitted: number }
-    | undefined
+  const session = await c.env.DB.prepare('SELECT * FROM game_sessions WHERE id = ?')
+    .bind(sessionId)
+    .first<{ id: string; difficulty: string; game_mode: string; word_seed: number; token_hash: string; started_at: number; submitted: number }>()
 
   if (!session) {
     return c.json({ accepted: false, reason: 'SESSION_NOT_FOUND' }, 400)
@@ -160,7 +159,7 @@ game.post('/submit', async (c) => {
   }
 
   // ── トークンハッシュ一致確認 ──────────────────────────────────────
-  const suppliedHash = hashToken(token)
+  const suppliedHash = await hashToken(token)
   if (session.token_hash !== suppliedHash) {
     return c.json({ accepted: false, reason: 'TOKEN_HASH_MISMATCH' }, 400)
   }
@@ -206,13 +205,18 @@ game.post('/submit', async (c) => {
     return c.json({ accepted: false, reason: anomaly.reason }, 400)
   }
 
-  // レートリミット: 前回 submit からの間隔 (同一 IP で 30 秒以上)
-  if (!checkRateLimit(`submit_interval:${ip}`, 1, 30_000)) {
+  // レートリミット: 同一 IP からの短時間バースト送信を抑止する（粗いスパム対策）。
+  // セッションは sessionId 単位で一回限りの使用・リプレイ検証・異常検知により
+  // 既に保護されているため、ここは「同一IPからの連続大量送信」を防ぐのが目的。
+  // limit=1 だと NAT/学校や職場の共有Wi-Fi等、同一IPを複数人が使う環境で
+  // 別々の正規プレイヤーの送信が同時期に重なっただけで誤ってブロックされるため、
+  // ある程度のバーストを許容する値にしている。
+  if (!checkRateLimit(`submit_interval:${ip}`, 5, 30_000)) {
     return c.json({ accepted: false, reason: 'SUBMIT_INTERVAL_TOO_SHORT' }, 429)
   }
 
   // ── DB 登録 ───────────────────────────────────────────────────────
-  const rankingId  = uuidv4()
+  const rankingId  = crypto.randomUUID()
   const accuracy   = result.totalKeystrokes === 0
     ? 100
     : Math.round((result.correctKeystrokes / result.totalKeystrokes) * 100)
@@ -220,14 +224,15 @@ game.post('/submit', async (c) => {
     ? Math.round((result.correctKeystrokes / result.playTime) * 10) / 10
     : 0
 
-  db.transaction(() => {
-    db.prepare('UPDATE game_sessions SET submitted = 1 WHERE id = ?').run(sessionId)
-    db.prepare(`
+  // D1 では複数ステートメントの原子的実行に batch() を使用する
+  await c.env.DB.batch([
+    c.env.DB.prepare('UPDATE game_sessions SET submitted = 1 WHERE id = ?').bind(sessionId),
+    c.env.DB.prepare(`
       INSERT INTO rankings
         (id, session_id, player_name, score, play_time, total_keystrokes, correct_keystrokes,
-         miss_count, accuracy, kps, max_combo, words_completed, difficulty, game_mode, verified, played_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
-    `).run(
+         miss_count, accuracy, kps, max_combo, words_completed, difficulty, game_mode, verified, played_at, ip_address)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+    `).bind(
       rankingId,
       sessionId,
       playerName,
@@ -243,19 +248,20 @@ game.post('/submit', async (c) => {
       payload.difficulty,
       payload.gameMode,
       new Date().toISOString(),
-    )
-  })()
+      ip,
+    ),
+  ])
 
   // ── ランク取得 ─────────────────────────────────────────────────────
-  const rankRow = db.prepare(`
+  const rankRow = await c.env.DB.prepare(`
     SELECT COUNT(*) + 1 AS rank
     FROM rankings
     WHERE difficulty = ? AND game_mode = ? AND score > ? AND verified = 1
-  `).get(payload.difficulty, payload.gameMode, replayResult.score) as { rank: number }
+  `).bind(payload.difficulty, payload.gameMode, replayResult.score).first<{ rank: number }>()
 
   return c.json({
     accepted:    true,
-    rank:        rankRow.rank,
+    rank:        rankRow?.rank ?? 1,
     serverScore: replayResult.score,
   })
 })

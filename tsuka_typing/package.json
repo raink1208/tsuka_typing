@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "sync-shared-data": "node ../shared-data/sync.mjs",
+    "predev": "npm run sync-shared-data",
+    "prebuild": "npm run sync-shared-data",
+    "pregenerate": "npm run sync-shared-data",
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "npm run sync-shared-data && nuxt prepare"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.4",
@@ -15,5 +19,11 @@
   },
   "devDependencies": {
     "nuxt": "^3.13.2"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true,
+    "esbuild@0.28.1": true,
+    "@parcel/watcher@2.5.6": true,
+    "vue-demi@0.14.10": true
   }
 }

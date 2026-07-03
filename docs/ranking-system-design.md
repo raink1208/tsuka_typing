@@ -244,42 +244,47 @@ export function generateWordSequence(
 
 ---
 
-## DB スキーマ (例: PostgreSQL)
+## DB スキーマ (Cloudflare D1 / SQLite)
+
+> D1はSQLite互換のため、PostgreSQL的な `UUID` / `TIMESTAMPTZ` / `BOOLEAN` / `gen_random_uuid()` 等の型・関数は使用不可。
+> `id` はアプリ側 (Workers) で `crypto.randomUUID()` により生成しTEXTとして挿入する。日時は取り回しやすい `INTEGER` (Unixミリ秒) で保持する。
+> 実装済みの [db.ts](../typing_backend/src/db.ts) のスキーマと同一の方針。
 
 ```sql
-CREATE TABLE game_sessions (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  player_id     UUID REFERENCES players(id),
-  difficulty    VARCHAR(10) NOT NULL,
-  game_mode     VARCHAR(10) NOT NULL,
-  word_seed     INTEGER NOT NULL,
-  token_hash    VARCHAR(64) NOT NULL,   -- トークンのSHA256ハッシュ
-  started_at    TIMESTAMPTZ NOT NULL,
-  submitted     BOOLEAN DEFAULT FALSE,
-  created_at    TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE IF NOT EXISTS game_sessions (
+  id          TEXT    PRIMARY KEY,                     -- crypto.randomUUID() で生成
+  difficulty  TEXT    NOT NULL CHECK(difficulty IN ('easy', 'normal', 'hard')),
+  game_mode   TEXT    NOT NULL CHECK(game_mode  IN ('normal', 'ra-na')),
+  word_seed   INTEGER NOT NULL,
+  token_hash  TEXT    NOT NULL,                         -- トークンのSHA256ハッシュ
+  started_at  INTEGER NOT NULL,                         -- Unixミリ秒
+  submitted   INTEGER NOT NULL DEFAULT 0,                -- BOOLEANの代わりに0/1
+  ip_address  TEXT,
+  created_at  INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
 );
 
-CREATE TABLE rankings (
-  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id          UUID REFERENCES game_sessions(id) UNIQUE,
-  player_id           UUID REFERENCES players(id),
+CREATE TABLE IF NOT EXISTS rankings (
+  id                  TEXT    PRIMARY KEY,               -- crypto.randomUUID() で生成
+  session_id          TEXT    NOT NULL UNIQUE REFERENCES game_sessions(id),
+  player_name         TEXT    NOT NULL DEFAULT 'anonymous',
   score               INTEGER NOT NULL,
-  play_time           REAL NOT NULL,
+  play_time           REAL    NOT NULL,
   total_keystrokes    INTEGER NOT NULL,
   correct_keystrokes  INTEGER NOT NULL,
   miss_count          INTEGER NOT NULL,
-  accuracy            REAL NOT NULL,
-  kps                 REAL NOT NULL,
+  accuracy            REAL    NOT NULL,
+  kps                 REAL    NOT NULL,
   max_combo           INTEGER NOT NULL,
   words_completed     INTEGER NOT NULL,
-  difficulty          VARCHAR(10) NOT NULL,
-  verified            BOOLEAN DEFAULT TRUE,  -- サーバー検証通過フラグ
-  played_at           TIMESTAMPTZ NOT NULL,
-  created_at          TIMESTAMPTZ DEFAULT NOW()
+  difficulty          TEXT    NOT NULL,
+  game_mode           TEXT    NOT NULL,
+  verified            INTEGER NOT NULL DEFAULT 1,        -- BOOLEANの代わりに0/1、サーバー検証通過フラグ
+  played_at           TEXT    NOT NULL,                   -- ISO8601文字列
+  created_at          INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
 );
 
-CREATE INDEX idx_rankings_score ON rankings(difficulty, score DESC);
-CREATE INDEX idx_rankings_player ON rankings(player_id);
+CREATE INDEX IF NOT EXISTS idx_rankings_score ON rankings(difficulty, game_mode, score DESC);
+CREATE INDEX IF NOT EXISTS idx_sessions_created ON game_sessions(created_at);
 ```
 
 ---

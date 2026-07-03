@@ -25,6 +25,18 @@
       <span class="div-line" /><span class="div-gem">❖</span><span class="div-line" />
     </div>
 
+    <!-- プレイヤー名 -->
+    <section class="player-name-section">
+      <p class="section-label">名前を名乗れ</p>
+      <input
+        v-model="playerName"
+        class="player-name-input"
+        type="text"
+        maxlength="30"
+        placeholder="anonymous"
+      />
+    </section>
+
     <!-- 難易度選択 -->
     <section class="difficulty-section">
       <p class="section-label">試練の難度を選べ</p>
@@ -87,6 +99,12 @@ const store = useGameStore()
 
 const selectedDiff = ref<'easy' | 'normal' | 'hard'>('normal')
 const selectedMode = ref<'normal' | 'ra-na'>('normal')
+const PLAYER_NAME_KEY = 'tsuka-typing-player-name'
+const playerName = ref('')
+
+onMounted(() => {
+  playerName.value = localStorage.getItem(PLAYER_NAME_KEY) ?? ''
+})
 
 const difficulties = [
   { value: 'easy'   as const, label: 'かんたん',   detail: '70秒 / やさしい言葉', color: '#48a068', icon: '🌿' },
@@ -95,6 +113,9 @@ const difficulties = [
 ]
 
 function startGame() {
+  const name = playerName.value.trim()
+  localStorage.setItem(PLAYER_NAME_KEY, name)
+  store.setPlayerName(name)
   store.setDifficulty(selectedDiff.value)
   store.setGameMode(selectedMode.value)
   store.startGame()
@@ -250,6 +271,33 @@ onMounted(() => {
   color: #c8a028;
   font-size: 0.75rem;
   text-shadow: 0 0 8px rgba(200,160,40,0.5);
+}
+
+/* ── プレイヤー名セクション ────────────── */
+.player-name-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+}
+.player-name-input {
+  width: 220px;
+  padding: 8px 12px;
+  background: #1a1208;
+  border: 1px solid #4a3218;
+  color: #d8cda0;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.9rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.player-name-input:focus {
+  border-color: #c8a028;
+}
+.player-name-input::placeholder {
+  color: #5a4a28;
 }
 
 /* ── 難易度セクション ──────────────────── */

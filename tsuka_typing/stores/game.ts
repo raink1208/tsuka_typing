@@ -19,6 +19,18 @@ export interface GameRecord {
   playedAt: string        // ISO 8601
 }
 
+/** typing_backend へ送信するキーストロークログ（サーバー側リプレイ検証用） */
+export interface KeystrokeEvent {
+  /** ゲーム開始からの経過時間 (ms) */
+  t: number
+  /** 押されたキー */
+  k: string
+  /** 単語インデックス */
+  w: number
+}
+
+type SubmitStatus = 'idle' | 'pending' | 'accepted' | 'rejected' | 'error'
+
 interface DiffConfig {
   time: number
   tsukasaMaxHp: number
@@ -72,8 +84,10 @@ export const useGameStore = defineStore('game', {
     showMissFlash: false,
     showScorePopup: false,
     lastEarnedScore: 0,
+    /** HP0到達などでゲーム終了処理(endGame)が確定した後、追加の入力/多重endGame呼び出しを防ぐフラグ */
+    gameEnding: false,
 
-    /** 出題単語列を決定するシード値（将来的にはサーバー発行値に置き換える） */
+    /** 出題単語列を決定するシード値（typing_backend が発行する。オフライン時はローカル生成） */
     wordSeed: 0,
     /** シードから決定論的に生成された出題単語列 */
     wordSequence: [] as Word[],
@@ -81,6 +95,17 @@ export const useGameStore = defineStore('game', {
     wordIndex: 0,
 
     lastRecord: null as GameRecord | null,
+
+    /** typing_backend との連携用状態 */
+    sessionId: null as string | null,
+    sessionToken: null as string | null,
+    gameStartTime: 0,
+    keystrokeLog: [] as KeystrokeEvent[],
+    playerName: 'anonymous',
+    submitStatus: 'idle' as SubmitStatus,
+    submitReason: null as string | null,
+    serverRank: null as number | null,
+    serverScore: null as number | null,
   }),
 
   getters: {
@@ -139,7 +164,11 @@ export const useGameStore = defineStore('game', {
       this.gameMode = m
     },
 
-    startGame() {
+    setPlayerName(name: string) {
+      this.playerName = name.trim() || 'anonymous'
+    },
+
+    async startGame() {
       const cfg = this.config
       this.phase = 'battle'
       this.score = 0
@@ -154,9 +183,39 @@ export const useGameStore = defineStore('game', {
       this.tsukasaMaxHp = cfg.tsukasaMaxHp
       this.transitioning = false
       this.tsukasaAnim = 'idle'
+
+      this.sessionId = null
+      this.sessionToken = null
+      this.keystrokeLog = []
+      this.submitStatus = 'idle'
+      this.submitReason = null
+      this.serverRank = null
+      this.serverScore = null
+      this.gameStartTime = Date.now()
+      this.gameEnding = false
+
+      // typing_backend にセッション発行を依頼し、サーバー発行の wordSeed を採用する。
+      // サーバーに接続できない場合はローカルでシードを生成し、オフラインでもプレイを継続する
+      // （その場合スコアはランキングに送信されない）。
+      try {
+        const config = useRuntimeConfig()
+        const res = await $fetch<{ sessionId: string; wordSeed: number; token: string; serverTime: number }>(
+          `${config.public.apiBase}/api/game/start`,
+          {
+            method: 'POST',
+            body: { difficulty: this.difficulty, gameMode: this.gameMode },
+          },
+        )
+        this.sessionId = res.sessionId
+        this.sessionToken = res.token
+        this.wordSeed = res.wordSeed
+        this.gameStartTime = Date.now()
+      } catch {
+        this.wordSeed = generateWordSeed()
+      }
+
       // シード値から出題単語列を決定論的に生成する
       // （同一シードであればサーバー側でも同じ単語列を再構築できる）
-      this.wordSeed = generateWordSeed()
       this.wordSequence = generateWordSequence(this.wordSeed, this.difficulty)
       this.wordIndex = 0
       this._spawnEnemy()
@@ -187,7 +246,21 @@ export const useGameStore = defineStore('game', {
     },
 
     onKeyPress(key: string) {
-      if (this.phase !== 'battle' || !this.currentWord || this.transitioning) return
+      if (this.phase !== 'battle' || !this.currentWord || this.transitioning || this.gameEnding) return
+      if (this.currentKanaIndex >= this.currentTokens.length) return
+
+      // サーバー側リプレイ検証用に、実際に発生したキー入力イベントのみを記録する
+      // （下の _processKeyPress の再帰呼び出しでは重複記録しない）
+      this.keystrokeLog.push({
+        t: Date.now() - this.gameStartTime,
+        k: key,
+        w: Math.max(0, this.wordIndex - 1),
+      })
+
+      this._processKeyPress(key)
+    },
+
+    _processKeyPress(key: string) {
       if (this.currentKanaIndex >= this.currentTokens.length) return
 
       const token    = this.currentTokens[this.currentKanaIndex]
@@ -232,7 +305,7 @@ export const useGameStore = defineStore('game', {
         }
         // 今回のキーを次のトークンで再処理（totalKeystrokes の二重計上を防ぐ）
         this.totalKeystrokes--
-        this.onKeyPress(key)
+        this._processKeyPress(key)
         return
       }
 
@@ -306,7 +379,13 @@ export const useGameStore = defineStore('game', {
         this.showMissFlash = false
       }, MISS_FLASH_DURATION_MS)
 
-      if (this.tsukasaHp <= 0) {
+      // gameEnding は endGame() が実際に実行される(600ms後)までの猶予期間に
+      // 追加のミスが発生して setTimeout が多重にスケジュールされ、
+      // endGame()（ひいては submit）が複数回呼ばれてしまうのを防ぐガード。
+      // これがないと同一セッションで submit が短時間に連続送信され、
+      // サーバー側の SUBMIT_INTERVAL_TOO_SHORT / ALREADY_SUBMITTED を誘発する。
+      if (this.tsukasaHp <= 0 && !this.gameEnding) {
+        this.gameEnding = true
         setTimeout(() => this.endGame(), MISS_GAMEOVER_DELAY_MS)
       }
     },
@@ -314,13 +393,15 @@ export const useGameStore = defineStore('game', {
     tick(deltaMs: number) {
       if (this.phase !== 'battle') return
       if (this.timeLeft <= 0) {
+        if (this.gameEnding) return
+        this.gameEnding = true
         this.endGame()
         return
       }
       this.timeLeft = Math.max(0, this.timeLeft - deltaMs / 1000)
     },
 
-    endGame() {
+    async endGame() {
       this.elapsedTime = this.config.time - this.timeLeft
       this.phase = 'result'
 
@@ -336,6 +417,44 @@ export const useGameStore = defineStore('game', {
         difficulty:        this.difficulty,
         wordsCompleted:    this.wordsCompleted,
         playedAt:          new Date().toISOString(),
+      }
+
+      // typing_backend にリザルトを送信し、サーバー検証済みの順位を取得する
+      // （ゲーム開始時にセッションが発行できていた場合のみ）
+      if (!this.sessionId || !this.sessionToken) {
+        this.submitStatus = 'error'
+        this.submitReason = 'NO_SESSION'
+        return
+      }
+
+      this.submitStatus = 'pending'
+      try {
+        const config = useRuntimeConfig()
+        const res = await $fetch<{ accepted: boolean; rank?: number; serverScore?: number; reason?: string }>(
+          `${config.public.apiBase}/api/game/submit`,
+          {
+            method: 'POST',
+            body: {
+              sessionId:    this.sessionId,
+              token:        this.sessionToken,
+              playerName:   this.playerName,
+              result:       this.lastRecord,
+              keystrokeLog: this.keystrokeLog,
+            },
+          },
+        )
+
+        if (res.accepted) {
+          this.submitStatus = 'accepted'
+          this.serverRank = res.rank ?? null
+          this.serverScore = res.serverScore ?? null
+        } else {
+          this.submitStatus = 'rejected'
+          this.submitReason = res.reason ?? 'REJECTED'
+        }
+      } catch {
+        this.submitStatus = 'error'
+        this.submitReason = 'NETWORK_ERROR'
       }
     },
 

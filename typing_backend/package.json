@@ -3,21 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
-    "build": "tsc"
+    "sync-shared-data": "node ../shared-data/sync.mjs",
+    "predev": "npm run sync-shared-data",
+    "prebuild": "npm run sync-shared-data",
+    "predeploy": "npm run sync-shared-data",
+    "dev": "wrangler dev",
+    "build": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 execute tsuka-typing-db --local --file=./migrations/0001_init.sql && wrangler d1 execute tsuka-typing-db --local --file=./migrations/0002_add_ip_to_rankings.sql",
+    "db:migrate:remote": "wrangler d1 execute tsuka-typing-db --remote --file=./migrations/0001_init.sql && wrangler d1 execute tsuka-typing-db --remote --file=./migrations/0002_add_ip_to_rankings.sql"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
-    "better-sqlite3": "^11.10.0",
-    "hono": "^4.7.11",
-    "uuid": "^11.1.0"
+    "hono": "^4.7.11"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.12",
-    "@types/node": "^22.15.33",
-    "@types/uuid": "^10.0.0",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.107.0"
   }
 }

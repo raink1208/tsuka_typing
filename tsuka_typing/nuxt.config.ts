@@ -3,6 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   modules: ['@pinia/nuxt'],
+  runtimeConfig: {
+    public: {
+      // typing_backend の API ベースURL（環境変数 NUXT_PUBLIC_API_BASE で上書き可能）
+      apiBase: 'http://localhost:3001',
+    },
+  },
   app: {
     head: {
       title: '領国つかさ タイピングバトル',

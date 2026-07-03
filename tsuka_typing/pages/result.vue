@@ -67,6 +67,17 @@
       </div>
     </div>
 
+    <!-- ランキング送信状態 -->
+    <div class="ranking-status" :class="rankingStatusClass">
+      <span v-if="store.submitStatus === 'pending'">ランキングに送信中…</span>
+      <span v-else-if="store.submitStatus === 'accepted'">
+        ランキング登録: 第{{ store.serverRank }}位（検証済みスコア {{ store.serverScore }}）
+      </span>
+      <span v-else-if="store.submitStatus === 'rejected'">ランキング登録は却下されました（{{ store.submitReason }}）</span>
+      <span v-else-if="store.submitReason === 'NO_SESSION'">オフラインのためランキング未登録です</span>
+      <span v-else-if="store.submitStatus === 'error'">サーバーに接続できずランキング未登録です</span>
+    </div>
+
     <!-- ボタン -->
     <div class="result-actions">
       <button class="btn-retry" @click="retry">再び挑む</button>
@@ -109,6 +120,12 @@ const DIFF_COLORS  = { easy: '#44ff88', normal: '#ffd700', hard: '#ff4444' }
 const DIFF_LABELS  = { easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい' }
 const diffColor    = computed(() => DIFF_COLORS[store.difficulty])
 const diffLabel    = computed(() => DIFF_LABELS[store.difficulty])
+
+const rankingStatusClass = computed(() => ({
+  accepted: store.submitStatus === 'accepted',
+  rejected: store.submitStatus === 'rejected',
+  error:    store.submitStatus === 'error' || store.submitStatus === 'pending',
+}))
 
 function retry() {
   store.startGame()
@@ -241,6 +258,19 @@ function goTitle() {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* ── ランキング送信状態 ── */
+.ranking-status {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.78rem;
+  color: #8a7a5a;
+  letter-spacing: 0.04em;
+  text-align: center;
+  z-index: 1;
+}
+.ranking-status.accepted { color: #e8c85a; }
+.ranking-status.rejected { color: #c44030; }
+.ranking-status.error    { color: #5a4a28; }
 
 /* ── アクション ── */
 .result-actions { display: flex; gap: 12px; z-index: 1; }
