@@ -197,12 +197,23 @@ export function checkAnomalies(
 
   const intervals = keystrokeLog.slice(1).map((e, i) => e.t - keystrokeLog[i].t)
 
-  // 隣接キーの同時押しミスなど、人間でも単発では十分起こりうる短間隔を
-  // 即リジェクトしないよう、明らかに人間の動作では不可能な超短間隔のみを
-  // 単発でリジェクトする（スクリプト/貼り付け等を想定）。
-  const IMPOSSIBLE_INTERVAL_MS = 10
-  if (intervals.some(iv => iv < IMPOSSIBLE_INTERVAL_MS)) {
+  // タイムスタンプの逆行（ログの巻き戻し・改ざん）は物理的にあり得ないため即リジェクト。
+  if (intervals.some(iv => iv < 0)) {
     return { ok: false, reason: 'INTERVAL_TOO_SHORT' }
+  }
+
+  // 10ms未満の間隔: 実プレイログで確認された通り、左右異なる指で別々のキーを
+  // ほぼ同時に押した場合、キーボード/USBのポーリング間隔（数ms単位）の都合で
+  // 単発では十分起こりうる（1〜5ms程度の間隔が単発で記録されることがある）。
+  // そのため単発では即リジェクトせず、10ms未満の間隔が打鍵全体に対して
+  // 一定割合を超えて頻発する場合のみ、持続的な超高速入力＝ボット的パターンとみなす。
+  const VERY_SHORT_INTERVAL_MS = 10
+  const VERY_SHORT_INTERVAL_RATIO_THRESHOLD = 0.08
+  if (intervals.length >= 5) {
+    const veryShortCount = intervals.filter(iv => iv < VERY_SHORT_INTERVAL_MS).length
+    if (veryShortCount / intervals.length > VERY_SHORT_INTERVAL_RATIO_THRESHOLD) {
+      return { ok: false, reason: 'INTERVAL_TOO_SHORT' }
+    }
   }
 
   // 30ms未満の間隔自体は単発なら許容するが、それが打鍵全体に対して

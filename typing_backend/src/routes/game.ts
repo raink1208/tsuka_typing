@@ -28,31 +28,36 @@ const game = new Hono<{ Bindings: Bindings }>()
 game.post('/start', async (c) => {
   const ip = getIp(c)
 
+  function reject(reason: string, status: 400 | 429 | 500, extra?: Record<string, unknown>) {
+    console.warn(`[game/start] rejected reason=${reason} ip=${ip}${extra ? ' ' + JSON.stringify(extra) : ''}`)
+    return c.json({ error: reason }, status)
+  }
+
   // レートリミット: 同一 IP から 10 分間に最大 10 回
   if (!checkRateLimit(`start:${ip}`, 10, 600_000)) {
-    return c.json({ error: 'RATE_LIMITED' }, 429)
+    return reject('RATE_LIMITED', 429)
   }
 
   let body: { difficulty?: unknown; gameMode?: unknown }
   try {
     body = await c.req.json()
   } catch {
-    return c.json({ error: 'INVALID_JSON' }, 400)
+    return reject('INVALID_JSON', 400)
   }
 
   const { difficulty, gameMode } = body
 
   if (!VALID_DIFFICULTIES.includes(difficulty as Difficulty)) {
-    return c.json({ error: 'INVALID_DIFFICULTY' }, 400)
+    return reject('INVALID_DIFFICULTY', 400, { difficulty })
   }
   if (!VALID_GAME_MODES.includes(gameMode as GameMode)) {
-    return c.json({ error: 'INVALID_GAME_MODE' }, 400)
+    return reject('INVALID_GAME_MODE', 400, { gameMode })
   }
 
   const SECRET = c.env.SERVER_SECRET ?? ''
   if (!SECRET) {
     console.error('SERVER_SECRET is not set')
-    return c.json({ error: 'SERVER_MISCONFIGURED' }, 500)
+    return reject('SERVER_MISCONFIGURED', 500)
   }
 
   const sessionId  = crypto.randomUUID()
@@ -84,16 +89,21 @@ game.post('/start', async (c) => {
 game.post('/submit', async (c) => {
   const ip = getIp(c)
 
+  function reject(reason: string, status: 400 | 429 | 500, extra?: Record<string, unknown>) {
+    console.warn(`[game/submit] rejected reason=${reason} ip=${ip}${extra ? ' ' + JSON.stringify(extra) : ''}`)
+    return c.json({ accepted: false, reason }, status)
+  }
+
   // レートリミット: 同一 IP から 1 時間に最大 30 回
   if (!checkRateLimit(`submit:${ip}`, 30, 3_600_000)) {
-    return c.json({ accepted: false, reason: 'RATE_LIMITED' }, 429)
+    return reject('RATE_LIMITED', 429)
   }
 
   let body: Partial<SubmitRequest>
   try {
     body = await c.req.json()
   } catch {
-    return c.json({ accepted: false, reason: 'INVALID_JSON' }, 400)
+    return reject('INVALID_JSON', 400)
   }
 
   const { sessionId, token, result, keystrokeLog } = body
@@ -101,47 +111,47 @@ game.post('/submit', async (c) => {
 
   // ── 基本的な入力検証 ──────────────────────────────────────────────
   if (typeof sessionId !== 'string' || typeof token !== 'string') {
-    return c.json({ accepted: false, reason: 'MISSING_FIELDS' }, 400)
+    return reject('MISSING_FIELDS', 400)
   }
   if (!result || typeof result !== 'object') {
-    return c.json({ accepted: false, reason: 'MISSING_RESULT' }, 400)
+    return reject('MISSING_RESULT', 400, { sessionId })
   }
   if (!Array.isArray(keystrokeLog)) {
-    return c.json({ accepted: false, reason: 'MISSING_KEYSTROKE_LOG' }, 400)
+    return reject('MISSING_KEYSTROKE_LOG', 400, { sessionId })
   }
   if (keystrokeLog.length > MAX_KEYSTROKE_LOG) {
-    return c.json({ accepted: false, reason: 'KEYSTROKE_LOG_TOO_LARGE' }, 400)
+    return reject('KEYSTROKE_LOG_TOO_LARGE', 400, { sessionId, length: keystrokeLog.length })
   }
 
   // キーストロークログの形式チェック
   for (const evt of keystrokeLog) {
     if (typeof evt.t !== 'number' || typeof evt.k !== 'string' || typeof evt.w !== 'number') {
-      return c.json({ accepted: false, reason: 'INVALID_KEYSTROKE_FORMAT' }, 400)
+      return reject('INVALID_KEYSTROKE_FORMAT', 400, { sessionId })
     }
     if (evt.k.length !== 1) {
-      return c.json({ accepted: false, reason: 'INVALID_KEY_VALUE' }, 400)
+      return reject('INVALID_KEY_VALUE', 400, { sessionId, key: evt.k })
     }
   }
 
   // キーストロークのタイムスタンプは単調増加であること
   for (let i = 1; i < keystrokeLog.length; i++) {
     if (keystrokeLog[i].t < keystrokeLog[i - 1].t) {
-      return c.json({ accepted: false, reason: 'KEYSTROKE_TIMESTAMP_NOT_MONOTONIC' }, 400)
+      return reject('KEYSTROKE_TIMESTAMP_NOT_MONOTONIC', 400, { sessionId, index: i })
     }
   }
 
   const SECRET = c.env.SERVER_SECRET ?? ''
   if (!SECRET) {
-    return c.json({ accepted: false, reason: 'SERVER_MISCONFIGURED' }, 500)
+    return reject('SERVER_MISCONFIGURED', 500, { sessionId })
   }
 
   // ── セッショントークン検証 ────────────────────────────────────────
   const payload = await verifyToken(token, SECRET)
   if (!payload) {
-    return c.json({ accepted: false, reason: 'INVALID_TOKEN' }, 400)
+    return reject('INVALID_TOKEN', 400, { sessionId })
   }
   if (payload.sessionId !== sessionId) {
-    return c.json({ accepted: false, reason: 'SESSION_ID_MISMATCH' }, 400)
+    return reject('SESSION_ID_MISMATCH', 400, { sessionId, tokenSessionId: payload.sessionId })
   }
 
   // ── DB からセッション取得 ─────────────────────────────────────────
@@ -150,18 +160,18 @@ game.post('/submit', async (c) => {
     .first<{ id: string; difficulty: string; game_mode: string; word_seed: number; token_hash: string; started_at: number; submitted: number }>()
 
   if (!session) {
-    return c.json({ accepted: false, reason: 'SESSION_NOT_FOUND' }, 400)
+    return reject('SESSION_NOT_FOUND', 400, { sessionId })
   }
 
   // ── ワンタイム制御: 再送信拒否 ────────────────────────────────────
   if (session.submitted) {
-    return c.json({ accepted: false, reason: 'ALREADY_SUBMITTED' }, 400)
+    return reject('ALREADY_SUBMITTED', 400, { sessionId })
   }
 
   // ── トークンハッシュ一致確認 ──────────────────────────────────────
   const suppliedHash = await hashToken(token)
   if (session.token_hash !== suppliedHash) {
-    return c.json({ accepted: false, reason: 'TOKEN_HASH_MISMATCH' }, 400)
+    return reject('TOKEN_HASH_MISMATCH', 400, { sessionId })
   }
 
   // ── トークン有効期限チェック ──────────────────────────────────────
@@ -174,23 +184,23 @@ game.post('/submit', async (c) => {
   const diffCfg = DIFF_CONFIG[payload.difficulty]
   const maxAgeMs = diffCfg.time * 1000 + 30_000 // difficulty time + 30s バッファ（往復遅延吸収）
   if (Date.now() > payload.startedAt + maxAgeMs) {
-    return c.json({ accepted: false, reason: 'TOKEN_EXPIRED' }, 400)
+    return reject('TOKEN_EXPIRED', 400, { sessionId, ageMs: Date.now() - payload.startedAt, maxAgeMs })
   }
 
   // ── クロスバリデーション (基本整合性) ─────────────────────────────
   if (result.totalKeystrokes !== keystrokeLog.length) {
-    return c.json({ accepted: false, reason: 'KEYSTROKE_COUNT_MISMATCH' }, 400)
+    return reject('KEYSTROKE_COUNT_MISMATCH', 400, { sessionId, resultTotal: result.totalKeystrokes, logLength: keystrokeLog.length })
   }
   if (result.correctKeystrokes + result.missCount !== result.totalKeystrokes) {
-    return c.json({ accepted: false, reason: 'CORRECT_MISS_SUM_MISMATCH' }, 400)
+    return reject('CORRECT_MISS_SUM_MISMATCH', 400, { sessionId, correct: result.correctKeystrokes, miss: result.missCount, total: result.totalKeystrokes })
   }
   if (result.playTime > diffCfg.time + 1) {
-    return c.json({ accepted: false, reason: 'PLAY_TIME_TOO_LONG' }, 400)
+    return reject('PLAY_TIME_TOO_LONG', 400, { sessionId, playTime: result.playTime, limit: diffCfg.time })
   }
   if (keystrokeLog.length > 0) {
     const lastKeystrokeT = keystrokeLog[keystrokeLog.length - 1].t
     if (lastKeystrokeT / 1000 > result.playTime + 2) {
-      return c.json({ accepted: false, reason: 'KEYSTROKE_AFTER_GAME_END' }, 400)
+      return reject('KEYSTROKE_AFTER_GAME_END', 400, { sessionId, lastKeystrokeT, playTime: result.playTime })
     }
   }
 
@@ -199,16 +209,16 @@ game.post('/submit', async (c) => {
   const replayResult  = simulateGame(wordSequence, keystrokeLog, payload.gameMode)
 
   if (replayResult.score !== result.score) {
-    return c.json({ accepted: false, reason: 'SCORE_MISMATCH' }, 400)
+    return reject('SCORE_MISMATCH', 400, { sessionId, clientScore: result.score, serverScore: replayResult.score })
   }
   if (replayResult.wordsCompleted !== result.wordsCompleted) {
-    return c.json({ accepted: false, reason: 'WORDS_COMPLETED_MISMATCH' }, 400)
+    return reject('WORDS_COMPLETED_MISMATCH', 400, { sessionId, clientWords: result.wordsCompleted, serverWords: replayResult.wordsCompleted })
   }
 
   // ── 統計的異常検知 ────────────────────────────────────────────────
   const anomaly = checkAnomalies(keystrokeLog, replayResult)
   if (!anomaly.ok) {
-    return c.json({ accepted: false, reason: anomaly.reason }, 400)
+    return reject(anomaly.reason ?? 'ANOMALY_DETECTED', 400, { sessionId, kps: replayResult.kps, accuracy: replayResult.accuracy })
   }
 
   // レートリミット: 同一 IP からの短時間バースト送信を抑止する（粗いスパム対策）。
@@ -217,8 +227,8 @@ game.post('/submit', async (c) => {
   // limit=1 だと NAT/学校や職場の共有Wi-Fi等、同一IPを複数人が使う環境で
   // 別々の正規プレイヤーの送信が同時期に重なっただけで誤ってブロックされるため、
   // ある程度のバーストを許容する値にしている。
-  if (!checkRateLimit(`submit_interval:${ip}`, 5, 30_000)) {
-    return c.json({ accepted: false, reason: 'SUBMIT_INTERVAL_TOO_SHORT' }, 429)
+  if (!checkRateLimit(`submit_interval:${ip}`, 10, 30_000)) {
+    return reject('SUBMIT_INTERVAL_TOO_SHORT', 429, { sessionId })
   }
 
   // ── DB 登録 ───────────────────────────────────────────────────────

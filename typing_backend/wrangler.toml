@@ -2,6 +2,10 @@ name = "tsuka-typing-backend"
 main = "src/index.ts"
 compatibility_date = "2024-11-01"
 
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 [[d1_databases]]
 binding = "DB"
 database_name = "tsuka-typing-db"
