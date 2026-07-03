@@ -360,15 +360,17 @@ export const useGameStore = defineStore('game', {
       if (this.combo > this.maxCombo) this.maxCombo = this.combo
       this.wordsCompleted++
 
-      const romajiLength = this.currentWord.romaji.length
+      // スコア・ダメージは romaji フィールド（固定値）ではなく実際に入力した文字数
+      // （typedSoFar：語末 nn 表記や っ の重複子音などを含む実タイプ数）を基準にする
+      const typedLength = this.typedSoFar.length
       const comboMult = 1 + Math.floor(this.combo / 5) * 0.5
-      const earned = Math.floor(romajiLength * comboMult)
+      const earned = Math.floor(typedLength * comboMult)
       this.score += earned
       this.lastEarnedScore = earned
       this.showScorePopup = true
       this.tsukasaAnim = 'attack'
 
-      const dmg = romajiLength
+      const dmg = typedLength
       this.enemyHp = Math.max(0, this.enemyHp - dmg)
 
       if (this.enemyHp <= 0) {

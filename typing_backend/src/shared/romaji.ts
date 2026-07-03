@@ -78,7 +78,10 @@ export function tokenizeHiragana(
 
     const patterns = map[ch]
     if (patterns) {
-      tokens.push({ kana: ch, primary: patterns[0], patterns })
+      // 語末の「ん」は次のかなによる確定ができず、必ず nn と2回入力しないと確定しないため
+      // 表示（primary）も nn にして入力必須であることを明示する
+      const isTrailingN = ch === 'ん' && i === hiragana.length - 1
+      tokens.push({ kana: ch, primary: isTrailingN ? (patterns[1] ?? patterns[0]) : patterns[0], patterns })
     } else {
       tokens.push({ kana: ch, primary: ch, patterns: [ch] })
     }

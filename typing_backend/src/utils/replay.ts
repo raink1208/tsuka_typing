@@ -136,9 +136,11 @@ export function simulateGame(
       if (combo > maxCombo) maxCombo = combo
       wordsCompleted++
 
-      const romajiLength = wordSequence[currentWordIdx].romaji.length
-      const comboMult    = 1 + Math.floor(combo / 5) * 0.5
-      score += Math.floor(romajiLength * comboMult)
+      // フロントエンドと同様、romaji フィールド（固定値）ではなく実際に入力した文字数
+      // （typedSoFar）を基準にスコアを再計算する
+      const typedLength = typedSoFar.length
+      const comboMult   = 1 + Math.floor(combo / 5) * 0.5
+      score += Math.floor(typedLength * comboMult)
 
       currentWordIdx++
       if (currentWordIdx < wordSequence.length) {
