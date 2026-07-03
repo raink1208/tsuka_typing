@@ -29,6 +29,15 @@ function focus() {
 function onKeydown(e: KeyboardEvent) {
   if (e.isComposing) return
   if (e.ctrlKey || e.altKey || e.metaKey) return
+  // OS のキーリピート（キーを押し続けた際に自動発火する合成 keydown）は
+  // 新しい打鍵ではない。リピート間隔は OS 設定次第で 30ms を大きく下回ることが
+  // あり、除外しないと通常プレイでもサーバー側の INTERVAL_TOO_SHORT を
+  // 誤検知してしまう。ゲームロジック側にも二重入力として渡さないよう、
+  // ここで完全に無視する。
+  if (e.repeat) {
+    e.preventDefault()
+    return
+  }
 
   if (/^[a-z]$/i.test(e.key)) {
     e.preventDefault()
