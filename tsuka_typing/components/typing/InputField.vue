@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 const emit = defineEmits<{
-  char: [key: string]
+  char: [key: string, timeStamp: number]
 }>()
 
 const el = ref<HTMLInputElement>()
@@ -32,19 +32,19 @@ function onKeydown(e: KeyboardEvent) {
 
   if (/^[a-z]$/i.test(e.key)) {
     e.preventDefault()
-    emit('char', e.key.toLowerCase())
+    emit('char', e.key.toLowerCase(), e.timeStamp)
     return
   }
   // 数字キー（半角）
   if (/^[0-9]$/.test(e.key)) {
     e.preventDefault()
-    emit('char', e.key)
+    emit('char', e.key, e.timeStamp)
     return
   }
   // 記号・伸ばし棒に対応するキー
   if (/^[-!?,./]$/.test(e.key)) {
     e.preventDefault()
-    emit('char', e.key)
+    emit('char', e.key, e.timeStamp)
   }
 }
 

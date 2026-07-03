@@ -99,7 +99,10 @@ export const useGameStore = defineStore('game', {
     /** typing_backend との連携用状態 */
     sessionId: null as string | null,
     sessionToken: null as string | null,
+    /** performance.now() 基準（KeyboardEvent.timeStamp と同じ時間軸）のゲーム開始時刻 */
     gameStartTime: 0,
+    /** Date.now() 基準のゲーム開始時刻（timeStamp が取得できない場合のフォールバック用） */
+    gameStartTimeWall: 0,
     keystrokeLog: [] as KeystrokeEvent[],
     playerName: 'anonymous',
     submitStatus: 'idle' as SubmitStatus,
@@ -191,7 +194,8 @@ export const useGameStore = defineStore('game', {
       this.submitReason = null
       this.serverRank = null
       this.serverScore = null
-      this.gameStartTime = Date.now()
+      this.gameStartTime = performance.now()
+      this.gameStartTimeWall = Date.now()
       this.gameEnding = false
 
       // typing_backend にセッション発行を依頼し、サーバー発行の wordSeed を採用する。
@@ -209,7 +213,8 @@ export const useGameStore = defineStore('game', {
         this.sessionId = res.sessionId
         this.sessionToken = res.token
         this.wordSeed = res.wordSeed
-        this.gameStartTime = Date.now()
+        this.gameStartTime = performance.now()
+        this.gameStartTimeWall = Date.now()
       } catch {
         this.wordSeed = generateWordSeed()
       }
@@ -245,14 +250,22 @@ export const useGameStore = defineStore('game', {
       this.enemyAnim = 'idle'
     },
 
-    onKeyPress(key: string) {
+    onKeyPress(key: string, timeStamp?: number) {
       if (this.phase !== 'battle' || !this.currentWord || this.transitioning || this.gameEnding) return
       if (this.currentKanaIndex >= this.currentTokens.length) return
 
       // サーバー側リプレイ検証用に、実際に発生したキー入力イベントのみを記録する
       // （下の _processKeyPress の再帰呼び出しでは重複記録しない）
+      // KeyboardEvent.timeStamp はブラウザがイベント発火時に打刻する高精度・単調増加の
+      // 時刻であり、メインスレッドの遅延（GC/レイアウト等でキーイベント処理が一時的に
+      // まとめて実行される場合）の影響を受けない。Date.now() をハンドラ内で呼ぶと、
+      // 処理が遅延してまとめて走った複数キーの記録時刻がほぼ同一になり、サーバー側の
+      // INTERVAL_TOO_SHORT 誤検知を招くため、可能な限り timeStamp を優先する。
+      const t = timeStamp !== undefined
+        ? Math.max(0, Math.round(timeStamp - this.gameStartTime))
+        : Date.now() - this.gameStartTimeWall
       this.keystrokeLog.push({
-        t: Date.now() - this.gameStartTime,
+        t,
         k: key,
         w: Math.max(0, this.wordIndex - 1),
       })
