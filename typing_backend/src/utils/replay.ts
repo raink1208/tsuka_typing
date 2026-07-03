@@ -195,17 +195,31 @@ export function checkAnomalies(
 
   if (keystrokeLog.length < 2) return { ok: true }
 
-  // キーストローク間隔の最小値チェック (< 30ms は人間の反応限界以下)
-  for (let i = 1; i < keystrokeLog.length; i++) {
-    const interval = keystrokeLog[i].t - keystrokeLog[i - 1].t
-    if (interval < 30) {
+  const intervals = keystrokeLog.slice(1).map((e, i) => e.t - keystrokeLog[i].t)
+
+  // 隣接キーの同時押しミスなど、人間でも単発では十分起こりうる短間隔を
+  // 即リジェクトしないよう、明らかに人間の動作では不可能な超短間隔のみを
+  // 単発でリジェクトする（スクリプト/貼り付け等を想定）。
+  const IMPOSSIBLE_INTERVAL_MS = 10
+  if (intervals.some(iv => iv < IMPOSSIBLE_INTERVAL_MS)) {
+    return { ok: false, reason: 'INTERVAL_TOO_SHORT' }
+  }
+
+  // 30ms未満の間隔自体は単発なら許容するが、それが打鍵全体に対して
+  // 一定割合以上を占める場合は「常時人間の反応限界を超えている」= ボット的な
+  // パターンとみなしてリジェクトする。単発の事故的な短間隔と、
+  // 持続的な高速打鍵パターンを区別するための閾値。
+  const SHORT_INTERVAL_MS = 30
+  const SHORT_INTERVAL_RATIO_THRESHOLD = 0.15
+  if (intervals.length >= 5) {
+    const shortCount = intervals.filter(iv => iv < SHORT_INTERVAL_MS).length
+    if (shortCount / intervals.length > SHORT_INTERVAL_RATIO_THRESHOLD) {
       return { ok: false, reason: 'INTERVAL_TOO_SHORT' }
     }
   }
 
   // ボット検知: 標準偏差が極めて小さい (等間隔打鍵)
   if (keystrokeLog.length > 10) {
-    const intervals = keystrokeLog.slice(1).map((e, i) => e.t - keystrokeLog[i].t)
     const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length
     const variance = intervals.reduce((a, b) => a + (b - avg) ** 2, 0) / intervals.length
     const stdDev = Math.sqrt(variance)
