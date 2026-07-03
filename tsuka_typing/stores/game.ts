@@ -129,7 +129,13 @@ export const useGameStore = defineStore('game', {
       if (idx < s.currentTokens.length) {
         const cur = s.currentTokens[idx]
         if (s.currentKanaTyped) {
-          const active = cur.patterns.find(p => p.startsWith(s.currentKanaTyped)) ?? cur.primary
+          // primary（表示中の文字列）がまだ打鍵内容と前方一致するなら、表示を維持する。
+          // 例: 語末「ん」の primary='nn' で 'n' を1文字打った時点では
+          // patterns.find() だと配列先頭の 'n' パターンにマッチしてしまい、
+          // 表示上の2文字目が消えてしまう（primary優先でこれを防ぐ）。
+          const active = cur.primary.startsWith(s.currentKanaTyped)
+            ? cur.primary
+            : cur.patterns.find(p => p.startsWith(s.currentKanaTyped)) ?? cur.primary
           display += active
         } else {
           display += cur.primary
