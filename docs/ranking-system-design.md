@@ -40,7 +40,7 @@ sequenceDiagram
 |------|------|
 | 発行タイミング | ゲーム開始時に `POST /api/game/start` |
 | トークン内容 | `sessionId`, `difficulty`, `gameMode`, `wordSeed`, `startedAt` をJWT/HMACで署名 |
-| 有効期限 | `startedAt` + 制限時間 + バッファ(10秒) |
+| 有効期限 | `startedAt` + 制限時間 + バッファ(30秒、`/start`・`/submit` 双方の往復遅延やD1書き込みレイテンシを吸収) |
 | ワンタイム | 1セッション = 1回のみsubmit可。使用済みセッションIDはDB側でフラグ管理 |
 
 ```

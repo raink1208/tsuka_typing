@@ -165,8 +165,14 @@ game.post('/submit', async (c) => {
   }
 
   // ── トークン有効期限チェック ──────────────────────────────────────
+  // バッファは tick 精度の誤差だけでなく、/start と /submit 双方のネットワーク
+  // 往復時間・D1書き込みレイテンシも吸収する必要がある。
+  // クライアントの実プレイ時間計測は /start のレスポンス受信後に開始するため、
+  // サーバー基準の startedAt から見ると「/start往復 + プレイ時間 + /submit往復」が
+  // 経過することになる。モバイル回線やコールドスタート時の往復遅延を考慮し、
+  // 十分な余裕を持たせる。
   const diffCfg = DIFF_CONFIG[payload.difficulty]
-  const maxAgeMs = diffCfg.time * 1000 + 10_000 // difficulty time + 10s バッファ
+  const maxAgeMs = diffCfg.time * 1000 + 30_000 // difficulty time + 30s バッファ（往復遅延吸収）
   if (Date.now() > payload.startedAt + maxAgeMs) {
     return c.json({ accepted: false, reason: 'TOKEN_EXPIRED' }, 400)
   }

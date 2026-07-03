@@ -250,6 +250,22 @@ export const useGameStore = defineStore('game', {
       this.enemyAnim = 'idle'
     },
 
+    /**
+     * 「READY? スペースキーを押してスタート」オーバーレイが消え、実際に
+     * ゲームループ（tick）が動き出す瞬間に呼ぶ。
+     * startGame() 時点の gameStartTime は /api/game/start のレスポンス到着時刻
+     * （＝サーバーのセッション発行時刻に近い基準）だが、プレイヤーが READY 画面で
+     * 待っている時間は不定（数秒〜数十秒）であり、その間 tick() は動いていないため
+     * elapsedTime（playTime）は増えない。
+     * gameStartTime をここで tick 開始の瞬間にリセットしないと、keystrokeLog の t は
+     * 「READY 待機時間」を含んだまま記録され続け、playTime とズレて
+     * サーバー側の KEYSTROKE_AFTER_GAME_END 誤検知（正常プレイの却下）を招く。
+     */
+    beginPlaying() {
+      this.gameStartTime = performance.now()
+      this.gameStartTimeWall = Date.now()
+    },
+
     onKeyPress(key: string, timeStamp?: number) {
       if (this.phase !== 'battle' || !this.currentWord || this.transitioning || this.gameEnding) return
       if (this.currentKanaIndex >= this.currentTokens.length) return

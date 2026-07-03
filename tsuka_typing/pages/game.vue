@@ -101,6 +101,7 @@ const showImeWarning = ref(false)
 function beginGame() {
   if (isReady.value) return
   isReady.value = true
+  store.beginPlaying()
   start()
   nextTick(() => inputFieldRef.value?.focus())
 }
