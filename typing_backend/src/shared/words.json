@@ -17,6 +17,7 @@
   { "kanji": "放課後DEATHタイム君に告白！", "hiragana": "ほうかごdeathたいむきみにこくはく！", "romaji": "houkagodeathtaimukiminikokuhaku!", "difficulty": 3 },
   { "kanji": "死になさい", "hiragana": "しになさい", "romaji": "sininasai", "difficulty": 1 },
   { "kanji": "狂う", "hiragana": "くるう", "romaji": "kuruu", "difficulty": 1 },
+  { "kanji": "ガバ探", "hiragana": "がばたん", "romaji": "gabatan", "difficulty": 1 },
   { "kanji": "脳筋", "hiragana": "のうきん", "romaji": "noukinn", "difficulty": 1 },
   { "kanji": "リミナルスペース", "hiragana": "りみなるすぺーす", "romaji": "riminarusupe-su", "difficulty": 2 },
   { "kanji": "ガチ恋０人", "hiragana": "がちこい０にん", "romaji": "gatikoi0nin", "difficulty": 2 },
@@ -95,6 +96,9 @@
   { "kanji": "うわ、キリがないな～。霧だけに", "hiragana": "うわ、きりがないな～。きりだけに", "romaji": "uwa, kiriganainaa~. kiridakeni", "difficulty": 3 },
   { "kanji": "この猛暑はもうしょうがない", "hiragana": "このもうしょはもうしょうがない", "romaji": "konomousyohamousyouganai", "difficulty": 3 },
   { "kanji": "王手で横転", "hiragana": "おうてでおうてん", "romaji": "outedeoutenn", "difficulty": 1 },
+  { "kanji": "石川県", "hiragana": "いしかわけん", "romaji": "isikawakenn", "difficulty": 1 },
+  { "kanji": "媚ビジネス", "hiragana": "こびじねす", "romaji": "kobijinesu", "difficulty": 1 },
+
   { "kanji": "その前に水を飲む！", "hiragana": "そのまえにみずをのむ！", "romaji": "sonomaenimizuwonomu!", "difficulty": 2 },
   { "kanji": "うっひょ～～～", "hiragana": "うっひょーーー", "romaji": "uhhyo---", "difficulty": 1 }
 ]
