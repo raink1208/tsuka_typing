@@ -38,6 +38,7 @@
   { "kanji": "絶頂", "hiragana": "ぜっちょう", "romaji": "zettyou", "difficulty": 1 },
   { "kanji": "つか虐", "hiragana": "つかぎゃく", "romaji": "tsukagyaku", "difficulty": 1 },
   { "kanji": "傲慢不遜", "hiragana": "ごうまんふそん", "romaji": "goumanhusonn", "difficulty": 2 },
+  { "kanji": "悠々自適", "hiragana": "ゆうゆうじてき", "romaji": "yuuyuujiteki", "difficulty": 2 },
   { "kanji": "私立王成学園", "hiragana": "しりつおうじょがくえん", "romaji": "sirituojougakuenn", "difficulty": 2 },
   { "kanji": "最強の国", "hiragana": "さいきょうのくに", "romaji": "saikyounokuni", "difficulty": 2 },
   { "kanji": "ヒステリック", "hiragana": "ひすてりっく", "romaji": "hisuterikku", "difficulty": 1 },
@@ -98,6 +99,7 @@
   { "kanji": "王手で横転", "hiragana": "おうてでおうてん", "romaji": "outedeoutenn", "difficulty": 1 },
   { "kanji": "石川県", "hiragana": "いしかわけん", "romaji": "isikawakenn", "difficulty": 1 },
   { "kanji": "媚ビジネス", "hiragana": "こびじねす", "romaji": "kobijinesu", "difficulty": 1 },
+  { "kanji": "力こそパワー", "hiragana": "ちからこそぱわー", "romaji": "tikarakosopawa-", "difficulty": 2 },
 
   { "kanji": "その前に水を飲む！", "hiragana": "そのまえにみずをのむ！", "romaji": "sonomaenimizuwonomu!", "difficulty": 2 },
   { "kanji": "うっひょ～～～", "hiragana": "うっひょーーー", "romaji": "uhhyo---", "difficulty": 1 }
