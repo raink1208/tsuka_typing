@@ -9,10 +9,20 @@
     <!-- エフェクトオーバーレイ -->
     <BattleAttackEffect />
 
-    <!-- スタート待機オーバーレイ -->
+    <!-- ロード / スタート待機オーバーレイ -->
     <Transition name="ready-fade">
-      <div v-if="!isReady" class="ready-overlay">
-        <div class="ready-box">
+      <div v-if="!hasStarted" class="ready-overlay">
+        <!-- 出題準備中（/api/game/start の応答待ち） -->
+        <div v-if="isLoading" class="ready-box">
+          <p class="loading-title">NOW LOADING</p>
+          <div class="loading-dots" aria-hidden="true">
+            <span /><span /><span />
+          </div>
+          <p class="ready-hint-sub">試練の書を紐解いています…</p>
+        </div>
+
+        <!-- 準備完了 -->
+        <div v-else class="ready-box">
           <p class="ready-title">READY?</p>
           <p class="ready-hint">スペースキーを押してスタート</p>
           <p v-if="showImeWarning" class="ready-ime-warning">⚠ 半角モードに切り替えてください（半角/全角キー）</p>
@@ -32,7 +42,7 @@
     <!-- ── HPバーエリア ─────────────── -->
     <section class="hp-section">
       <div class="hp-row">
-        <span class="hp-char-label player">つかさ</span>
+        <span class="hp-char-label player" :title="store.displayPlayerName">{{ store.displayPlayerName }}</span>
         <BattleHpBar
           name=""
           :current="store.tsukasaHp"
@@ -41,11 +51,11 @@
         />
       </div>
       <div class="hp-row">
-        <span class="hp-char-label enemy">{{ store.currentEnemy?.name ?? '???' }}</span>
+        <span class="hp-char-label enemy">{{ store.displayEnemy?.name ?? '???' }}</span>
         <BattleHpBar
           name=""
-          :current="store.enemyHp"
-          :max="store.enemyMaxHp"
+          :current="store.displayEnemyHp"
+          :max="store.displayEnemyMaxHp"
           side="enemy"
         />
       </div>
@@ -61,7 +71,7 @@
       </div>
 
       <BattleEnemySprite
-        :enemy="store.currentEnemy"
+        :enemy="store.displayEnemy"
         :state="store.enemyAnim"
       />
     </section>
@@ -95,19 +105,35 @@ const store = useGameStore()
 const { start, stop } = useGameLoop()
 
 const inputFieldRef = ref()
-const isReady = ref(false)
+/** ゲームループが動き出したか（＝オーバーレイを消したか） */
+const hasStarted = ref(false)
 const showImeWarning = ref(false)
+/** ロード中に押されたスペースを覚えておき、準備完了と同時に自動スタートする */
+const pendingStart = ref(false)
+
+const isLoading = computed(() => store.startStatus !== 'ready')
 
 function beginGame() {
-  if (isReady.value) return
-  isReady.value = true
+  if (hasStarted.value) return
+  // 出題準備が済むまではスタートさせない。ワード未生成のまま
+  // タイマーだけが進み、打鍵が握り潰されるのを防ぐ。
+  if (isLoading.value) {
+    pendingStart.value = true
+    return
+  }
+  hasStarted.value = true
   store.beginPlaying()
   start()
   nextTick(() => inputFieldRef.value?.focus())
 }
 
+// ロード中に押されたスペースを、準備完了の瞬間に消化する
+watch(isLoading, (loading) => {
+  if (!loading && pendingStart.value) beginGame()
+})
+
 function onKeydown(e: KeyboardEvent) {
-  if (!isReady.value && e.code === 'Space') {
+  if (!hasStarted.value && e.code === 'Space') {
     // IMEが全角モードだと key が 'Process' になるか isComposing が true になる
     if (e.key === 'Process' || e.isComposing) {
       e.preventDefault()
@@ -222,12 +248,20 @@ watch(() => store.phase, (p) => {
   font-size: 0.68rem;
   font-weight: 700;
   white-space: nowrap;
-  width: 80px;
+  width: 100px;
   flex-shrink: 0;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  /* プレイヤー名は最大30文字入力できるため、溢れた分は省略記号で切る */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.hp-char-label.player { color: #9060c0; text-shadow: 0 0 6px rgba(144,96,192,0.5); }
+.hp-char-label.player {
+  color: #9060c0;
+  text-shadow: 0 0 6px rgba(144,96,192,0.5);
+  /* 入力された名前はランキング表示と一致させたいので大文字化しない */
+  text-transform: none;
+}
 .hp-char-label.enemy  { color: #c44030; text-shadow: 0 0 6px rgba(196,64,48,0.5); }
 
 /* ── バトルエリア ───────────────────────── */
@@ -379,6 +413,33 @@ watch(() => store.phase, (p) => {
   color: rgba(122, 92, 40, 0.6);
   letter-spacing: 0.1em;
   margin: 0;
+}
+.loading-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #c8a028;
+  letter-spacing: 0.24em;
+  text-shadow: 0 0 16px rgba(200,160,40,0.5);
+  margin: 0;
+}
+.loading-dots {
+  display: flex;
+  gap: 10px;
+}
+.loading-dots span {
+  display: block;
+  width: 7px;
+  height: 7px;
+  background: #c8a028;
+  box-shadow: 0 0 8px rgba(200,160,40,0.7);
+  animation: loading-blink 1.2s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes loading-blink {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1); }
 }
 .ready-ime-warning {
   font-size: 0.8rem;

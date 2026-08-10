@@ -31,6 +31,14 @@ export interface KeystrokeEvent {
 
 type SubmitStatus = 'idle' | 'pending' | 'accepted' | 'rejected' | 'error'
 
+/**
+ * ゲーム開始準備の進行状況。
+ * startGame() は /api/game/start の往復を待つ非同期処理であり、その間
+ * currentWord は null（＝出題できない）。ゲーム画面はこの状態を見て
+ * ロード画面と READY 画面を出し分ける。
+ */
+type StartStatus = 'idle' | 'loading' | 'ready'
+
 interface DiffConfig {
   time: number
   tsukasaMaxHp: number
@@ -49,9 +57,13 @@ const WORD_TRANSITION_DELAY_MS = 600
 const MISS_FLASH_DURATION_MS = 500
 const MISS_GAMEOVER_DELAY_MS = 600
 
+/** /api/game/start の応答待ち上限 (ms)。超えたらオフライン扱いでプレイを継続する */
+const START_REQUEST_TIMEOUT_MS = 5000
+
 export const useGameStore = defineStore('game', {
   state: () => ({
     phase: 'title' as 'title' | 'battle' | 'result',
+    startStatus: 'idle' as StartStatus,
     difficulty: 'normal' as Difficulty,
     gameMode: 'normal' as GameMode,
 
@@ -69,6 +81,8 @@ export const useGameStore = defineStore('game', {
     enemyHp: 0,
     enemyMaxHp: 0,
     currentEnemy: null as Enemy | null,
+    /** 撃破演出中だけ表示する、倒された敵のスナップショット（表示専用。null なら currentEnemy を表示） */
+    dyingEnemy: null as Enemy | null,
 
     tsukasaAnim: 'idle' as AnimState,
     enemyAnim: 'idle' as AnimState,
@@ -118,6 +132,13 @@ export const useGameStore = defineStore('game', {
     enemyHpPct: (s) =>
       s.enemyMaxHp > 0 ? Math.max(0, (s.enemyHp / s.enemyMaxHp) * 100) : 0,
     /**
+     * HUD/スプライト表示用の敵情報。撃破演出中（dyingEnemy がセットされている間）は
+     * 次の敵の情報が既に確定していても、倒された敵を表示し続ける。
+     */
+    displayEnemy: (s): Enemy | null => s.dyingEnemy ?? s.currentEnemy,
+    displayEnemyHp: (s): number => (s.dyingEnemy ? 0 : s.enemyHp),
+    displayEnemyMaxHp: (s): number => (s.dyingEnemy ? s.dyingEnemy.maxHp : s.enemyMaxHp),
+    /**
      * 表示用ローマ字:
      * - 確定済み部分: 実際に打ったキー (typedSoFar)
      * - 入力中トークン: 打ちかけ + アクティブパターンの残り
@@ -162,6 +183,14 @@ export const useGameStore = defineStore('game', {
         : 0,
 
     missCount: (s) => s.totalKeystrokes - s.correctKeystrokes,
+
+    /**
+     * 画面表示用のプレイヤー名。
+     * 名前が未入力の場合 playerName は 'anonymous'（ランキング送信値）になるが、
+     * ゲーム画面ではキャラクター名を出す。
+     */
+    displayPlayerName: (s): string =>
+      s.playerName === 'anonymous' ? 'つかさ' : s.playerName,
   },
 
   actions: {
@@ -180,6 +209,13 @@ export const useGameStore = defineStore('game', {
     async startGame() {
       const cfg = this.config
       this.phase = 'battle'
+      // ここから /api/game/start の応答待ちに入る。ゲーム画面はこの間
+      // ロード画面を表示し、READY（＝スタート受付）には進ませない。
+      this.startStatus = 'loading'
+      // 前回プレイのワードがロード画面の裏に残らないようクリアする
+      this.currentWord = null
+      this.currentTokens = []
+      this.currentDisplayRomaji = ''
       this.score = 0
       this.combo = 0
       this.maxCombo = 0
@@ -192,6 +228,7 @@ export const useGameStore = defineStore('game', {
       this.tsukasaMaxHp = cfg.tsukasaMaxHp
       this.transitioning = false
       this.tsukasaAnim = 'idle'
+      this.dyingEnemy = null
 
       this.sessionId = null
       this.sessionToken = null
@@ -214,6 +251,9 @@ export const useGameStore = defineStore('game', {
           {
             method: 'POST',
             body: { difficulty: this.difficulty, gameMode: this.gameMode },
+            // タイムアウトがないと、バックエンドが応答しない場合に
+            // ロード画面から先へ進めなくなる（オフライン継続にも落ちない）。
+            timeout: START_REQUEST_TIMEOUT_MS,
           },
         )
         this.sessionId = res.sessionId
@@ -231,6 +271,9 @@ export const useGameStore = defineStore('game', {
       this.wordIndex = 0
       this._spawnEnemy()
       this._spawnWord()
+
+      // 出題準備が整った。ゲーム画面はここで READY 表示に切り替わる。
+      this.startStatus = 'ready'
     },
 
     _spawnWord() {
@@ -380,13 +423,23 @@ export const useGameStore = defineStore('game', {
       this.enemyHp = Math.max(0, this.enemyHp - dmg)
 
       if (this.enemyHp <= 0) {
+        // 撃破演出（enemy-dead アニメーション）は見た目の都合で
+        // ENEMY_DEFEATED_DELAY_MS だけ続けるが、プレイヤーの入力まで
+        // ブロックする必要はない。次の敵のステータスは即座に確定させて
+        // タイピングを継続できるようにしつつ、倒した敵のスプライトだけを
+        // dyingEnemy として演出用に残し、アニメーション終了後に消す。
+        const defeated = this.currentEnemy
+        this.dyingEnemy = defeated
+        this._spawnEnemy()
         this.enemyAnim = 'dead'
+        this.tsukasaAnim = 'idle'
+        this._spawnWord()
+        this.transitioning = false
         setTimeout(() => {
-          this._spawnEnemy()
+          // より速いキルが連鎖して dyingEnemy が上書きされている場合、
+          // 後から発火した古いタイマーで新しい dyingEnemy を消さないようにする
+          if (this.dyingEnemy === defeated) this.dyingEnemy = null
           this.showScorePopup = false
-          this.tsukasaAnim = 'idle'
-          this._spawnWord()
-          this.transitioning = false
         }, ENEMY_DEFEATED_DELAY_MS)
       } else {
         this.enemyAnim = 'damage'
@@ -497,6 +550,7 @@ export const useGameStore = defineStore('game', {
 
     resetToTitle() {
       this.phase = 'title'
+      this.startStatus = 'idle'
     },
   },
 })
