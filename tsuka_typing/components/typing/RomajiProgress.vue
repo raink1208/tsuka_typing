@@ -27,9 +27,9 @@ const chars = computed(() => (props.romaji ?? '').split(''))
   justify-content: center;
   gap: 1px;
   font-family: 'Share Tech Mono', 'Consolas', monospace;
-  font-size: 1.6rem;
+  font-size: 1.9rem;
   letter-spacing: 0.06em;
-  min-height: 2.2rem;
+  min-height: 2.5rem;
 }
 .romaji-char {
   display: inline-block;
@@ -53,7 +53,7 @@ const chars = computed(() => (props.romaji ?? '').split(''))
 }
 /* 未打済：石に刻まれた薄暗い色 */
 .pending {
-  color: rgba(138,122,90,0.45);
+  color: rgba(206,192,150,0.75);
 }
 
 @keyframes rune-pulse {

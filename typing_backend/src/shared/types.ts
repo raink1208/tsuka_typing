@@ -8,9 +8,10 @@ export interface DiffConfig {
 }
 
 export const DIFF_CONFIG: Record<Difficulty, DiffConfig> = {
-  easy:   { time: 70, tsukasaMaxHp: 500, dmgPerMiss: 5  },
+  // 難易度の違いは出題ワードのみ。時間 / HP / ミスダメージは全難易度で共通。
+  easy:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
   normal: { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
-  hard:   { time: 50, tsukasaMaxHp: 200, dmgPerMiss: 20 },
+  hard:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
 }
 
 export interface GameRecord {
@@ -42,6 +43,12 @@ export interface SubmitRequest {
   playerName?: string
   result: GameRecord
   keystrokeLog: KeystrokeEvent[]
+}
+
+/** 検証済みリザルトをランキングへ掲載するリクエスト */
+export interface PublishRequest {
+  sessionId: string
+  token: string
 }
 
 export interface RankingEntry {

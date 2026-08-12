@@ -26,7 +26,7 @@ html, body {
   width: 100%;
   height: 100%;
   background: #0e0b04;
-  color: #d8cda0;
+  color: #ece2bc;
   font-family: 'Noto Serif JP', 'Hiragino Mincho Pro', 'Yu Mincho', serif;
   overflow: hidden;
   user-select: none;
@@ -40,9 +40,9 @@ html, body {
   --color-surface:   rgba(26, 18, 8, 0.92);
   --color-border:    rgba(90, 60, 20, 0.5);
   --color-primary:   #c8a028;
-  --color-tsukasa:   #9060c0;
-  --color-text:      #d8cda0;
-  --color-text-dim:  #8a7a5a;
+  --color-tsukasa:   #a878d8;
+  --color-text:      #ece2bc;
+  --color-text-dim:  #b7a878;
   --font-mono:       'Share Tech Mono', 'Consolas', monospace;
 
   /* Fantasy RPG design tokens */
@@ -51,18 +51,18 @@ html, body {
   --rpg-panel:        #1e160a;
   --rpg-border:       #4a3218;
   --rpg-border-gold:  #7a5c28;
-  --rpg-gold:         #c8a028;
-  --rpg-gold-bright:  #e8c85a;
-  --rpg-gold-dim:     #7a6018;
+  --rpg-gold:         #d4ac34;
+  --rpg-gold-bright:  #f2d472;
+  --rpg-gold-dim:     #b08c30;
   --rpg-crimson:      #8b1a1a;
-  --rpg-crimson-lt:   #c44030;
+  --rpg-crimson-lt:   #e05a48;
   --rpg-emerald:      #2e6644;
-  --rpg-emerald-lt:   #48a068;
+  --rpg-emerald-lt:   #5cbc80;
   --rpg-violet:       #5a2c7a;
-  --rpg-violet-lt:    #9060c0;
-  --rpg-parchment:    #d8cda0;
-  --rpg-parchment-dim:#8a7a5a;
-  --rpg-ink:          #f0e8c8;
+  --rpg-violet-lt:    #a878d8;
+  --rpg-parchment:    #ece2bc;
+  --rpg-parchment-dim:#b7a878;
+  --rpg-ink:          #f8f2da;
 }
 
 /* ── ルートコンテナ ─────────────────────── */

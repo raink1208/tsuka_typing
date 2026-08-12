@@ -70,9 +70,18 @@
     <!-- ランキング送信状態 -->
     <div class="ranking-status" :class="rankingStatusClass">
       <span v-if="store.submitStatus === 'pending'">{{ t('result.ranking.pending') }}</span>
-      <span v-else-if="store.submitStatus === 'accepted'">
-        {{ t('result.ranking.accepted', { rank: store.serverRank, score: store.serverScore }) }}
-      </span>
+      <template v-else-if="store.submitStatus === 'accepted'">
+        <span v-if="store.publishStatus === 'published'">
+          {{ t('result.ranking.published', { rank: store.serverRank }) }}
+        </span>
+        <span v-else-if="store.publishStatus === 'pending'">{{ t('result.ranking.publishing') }}</span>
+        <span v-else-if="store.publishStatus === 'error'">
+          {{ t('result.ranking.publishError', { reason: store.publishReason }) }}
+        </span>
+        <span v-else>
+          {{ t('result.ranking.unpublished', { score: store.serverScore, rank: store.serverRank }) }}
+        </span>
+      </template>
       <span v-else-if="store.submitStatus === 'rejected'">{{ t('result.ranking.rejected', { reason: store.submitReason }) }}</span>
       <span v-else-if="store.submitReason === 'NO_SESSION'">{{ t('result.ranking.noSession') }}</span>
       <span v-else-if="store.submitStatus === 'error'">{{ t('result.ranking.error') }}</span>
@@ -80,6 +89,14 @@
 
     <!-- ボタン -->
     <div class="result-actions">
+      <button
+        v-if="canPublish"
+        class="btn-publish"
+        :disabled="store.publishStatus === 'pending'"
+        @click="publish"
+      >
+        {{ store.publishStatus === 'pending' ? t('result.publishingButton') : t('result.publishButton') }}
+      </button>
       <button class="btn-retry" @click="retry">{{ t('result.retryButton') }}</button>
       <button class="btn-title" @click="goTitle">{{ t('result.titleButton') }}</button>
     </div>
@@ -122,10 +139,19 @@ const diffColor    = computed(() => DIFF_COLORS[store.difficulty])
 const diffLabel    = computed(() => t(`difficulty.${store.difficulty}.label`))
 
 const rankingStatusClass = computed(() => ({
-  accepted: store.submitStatus === 'accepted',
-  rejected: store.submitStatus === 'rejected',
+  accepted: store.submitStatus === 'accepted' && store.publishStatus === 'published',
+  rejected: store.submitStatus === 'rejected' || store.publishStatus === 'error',
   error:    store.submitStatus === 'error' || store.submitStatus === 'pending',
 }))
+
+/** 検証済みかつ未登録のときだけランキング登録ボタンを出す */
+const canPublish = computed(() =>
+  store.submitStatus === 'accepted' && store.publishStatus !== 'published',
+)
+
+function publish() {
+  store.publishRanking()
+}
 
 function retry() {
   store.startGame()
@@ -177,9 +203,9 @@ function goTitle() {
 .result-header { text-align: center; z-index: 1; }
 .result-label {
   font-family: 'Cinzel', serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.48em;
-  color: #5a4a28;
+  font-size: 0.8rem;
+  letter-spacing: 0.34em;
+  color: #b09a5e;
   margin-bottom: 8px;
   text-transform: uppercase;
 }
@@ -190,12 +216,12 @@ function goTitle() {
   margin-bottom: 8px;
   letter-spacing: 0.1em;
 }
-.result-title.defeat  { color: #c44030; text-shadow: 0 0 20px rgba(196,64,48,0.5); }
-.result-title.timeout { color: #e8c85a; text-shadow: 0 0 16px rgba(200,160,40,0.45); animation: gold-pulse 2s ease-in-out infinite; }
+.result-title.defeat  { color: #e05a48; text-shadow: 0 0 20px rgba(196,64,48,0.5); }
+.result-title.timeout { color: #f2d472; text-shadow: 0 0 16px rgba(200,160,40,0.45); animation: gold-pulse 2s ease-in-out infinite; }
 .result-sub {
   font-family: 'Noto Serif JP', serif;
-  font-size: 0.85rem;
-  color: #8a7a5a;
+  font-size: 1rem;
+  color: #cbbd93;
   letter-spacing: 0.06em;
 }
 @keyframes gold-pulse {
@@ -209,17 +235,17 @@ function goTitle() {
   font-family: 'Share Tech Mono', monospace;
   font-size: 3.6rem;
   font-weight: 700;
-  color: #e8c85a;
+  color: #f2d472;
   text-shadow: 0 0 16px rgba(200,160,40,0.55);
   letter-spacing: 0.05em;
   line-height: 1;
 }
 .score-label {
   font-family: 'Cinzel', serif;
-  font-size: 0.58rem;
-  letter-spacing: 0.48em;
-  color: #5a4a28;
-  margin-top: 4px;
+  font-size: 0.76rem;
+  letter-spacing: 0.34em;
+  color: #b09a5e;
+  margin-top: 6px;
   text-transform: uppercase;
 }
 
@@ -242,46 +268,56 @@ function goTitle() {
   flex-direction: column;
   gap: 4px;
 }
-.stat-card.danger .stat-value { color: #c44030; text-shadow: 0 0 8px rgba(196,64,48,0.4); }
+.stat-card.danger .stat-value { color: #e05a48; text-shadow: 0 0 8px rgba(196,64,48,0.4); }
 .stat-value {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  color: #d8cda0;
+  color: #f0e8c8;
   line-height: 1;
 }
-.stat-unit { font-size: 1rem; color: #5a4a28; }
+.stat-unit { font-size: 1rem; color: #b09a5e; }
 .stat-label {
   font-family: 'Cinzel', serif;
-  font-size: 0.55rem;
-  color: #5a4a28;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: #b09a5e;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 /* ── ランキング送信状態 ── */
 .ranking-status {
   font-family: 'Noto Serif JP', serif;
-  font-size: 0.78rem;
-  color: #8a7a5a;
+  font-size: 0.92rem;
+  color: #cbbd93;
   letter-spacing: 0.04em;
   text-align: center;
   z-index: 1;
 }
-.ranking-status.accepted { color: #e8c85a; }
-.ranking-status.rejected { color: #c44030; }
-.ranking-status.error    { color: #5a4a28; }
+.ranking-status.accepted { color: #f2d472; }
+.ranking-status.rejected { color: #e05a48; }
+.ranking-status.error    { color: #b09a5e; }
 
 /* ── アクション ── */
 .result-actions { display: flex; gap: 12px; z-index: 1; }
-.btn-retry, .btn-title {
+.btn-publish, .btn-retry, .btn-title {
   padding: 11px 24px;
   font-family: 'Cinzel', serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.12em;
+  font-size: 0.94rem;
+  letter-spacing: 0.1em;
   border: 1px solid;
   transition: background 0.2s, box-shadow 0.2s;
 }
+.btn-publish {
+  background: linear-gradient(135deg, #0e2418 0%, #0a1a10 100%);
+  border-color: #3c8a5c;
+  color: #8fe8b4;
+}
+.btn-publish:hover:not(:disabled) {
+  background: linear-gradient(135deg, #123420 0%, #0c2416 100%);
+  box-shadow: 0 0 20px rgba(60,138,92,0.25);
+}
+.btn-publish:disabled { opacity: 0.5; cursor: default; }
 .btn-retry {
   background: linear-gradient(135deg, #2a1e0a 0%, #1e1608 100%);
   border-color: #c8a028;
@@ -294,7 +330,7 @@ function goTitle() {
 .btn-title {
   background: linear-gradient(135deg, #1c1008 0%, #140c06 100%);
   border-color: #5a3c14;
-  color: #6a5a38;
+  color: #b3a173;
 }
 .btn-title:hover {
   background: linear-gradient(135deg, #241408 0%, #1a1008 100%);
@@ -305,9 +341,9 @@ function goTitle() {
 /* ── 難易度バッジ ── */
 .diff-badge {
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.28em;
-  opacity: 0.65;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  opacity: 0.95;
   text-transform: uppercase;
   z-index: 1;
 }

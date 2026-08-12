@@ -4,9 +4,9 @@
     "description": "領国つかさと共に戦うタイピングバトルゲーム"
   },
   "difficulty": {
-    "easy": { "label": "かんたん", "detail": "60秒 / やさしい言葉" },
-    "normal": { "label": "ふつう", "detail": "60秒 / 普通の言葉" },
-    "hard": { "label": "むずかしい", "detail": "60秒 / 強力な言葉" }
+    "easy": { "label": "かんたん", "detail": "短い単語" },
+    "normal": { "label": "ふつう", "detail": "標準の単語" },
+    "hard": { "label": "むずかしい", "detail": "長い単語" }
   },
   "character": {
     "tsukasa": {
@@ -27,22 +27,22 @@
   "title": {
     "subtitleEn": "Typing Chronicle",
     "subtitleJp": "ローマ字タイピングバトル",
-    "playerNameLabel": "名前を名乗れ",
+    "playerNameLabel": "プレイヤー名",
     "playerNamePlaceholder": "anonymous",
-    "difficultyLabel": "試練の難度を選べ",
-    "modeLabel": "特殊ルール",
+    "difficultyLabel": "難易度",
+    "modeLabel": "オプション",
     "raNaModeName": "ら→な変換",
-    "raNaModeDetail": "ら行をな行で入力する",
+    "raNaModeDetail": "ら行をな行で入力",
     "modeOn": "ON",
     "modeOff": "OFF",
-    "startButton": "冒険を始める",
+    "startButton": "スタート",
     "startKey": "Enter",
-    "howTo1": "ローマ字でタイピング → つかさが攻撃",
-    "howTo2": "ミスすると敵の反撃を受ける"
+    "howTo1": "ローマ字で入力すると攻撃",
+    "howTo2": "ミスすると反撃を受ける"
   },
   "game": {
     "loadingTitle": "NOW LOADING",
-    "loadingHint": "試練の書を紐解いています…",
+    "loadingHint": "問題を準備しています…",
     "readyTitle": "READY?",
     "readyHint": "スペースキーを押してスタート",
     "imeWarning": "⚠ 半角モードに切り替えてください（半角/全角キー）",
@@ -50,29 +50,34 @@
   },
   "result": {
     "defeatTitle": "敗北",
-    "clearTitle": "試練完了",
-    "defeatSub": "つかさは倒れてしまった…",
-    "clearSub": "{count} の咒文を詠唱した",
-    "label": "Battle Chronicle",
-    "scoreLabel": "Experience Gained",
+    "clearTitle": "クリア",
+    "defeatSub": "つかさは倒れた",
+    "clearSub": "{count} 語を入力した",
+    "label": "Result",
+    "scoreLabel": "Score",
     "stats": {
-      "spellsCast": "Spells Cast",
-      "maxChain": "Max Chain",
+      "spellsCast": "Words",
+      "maxChain": "Max Combo",
       "accuracy": "Accuracy",
       "keysPerSec": "Keys / Sec",
-      "keysTyped": "Keys Typed",
+      "keysTyped": "Keys",
       "miss": "Miss"
     },
     "ranking": {
-      "pending": "ランキングに送信中…",
-      "accepted": "ランキング登録: 第{rank}位（検証済みスコア {score}）",
-      "rejected": "ランキング登録は却下されました（{reason}）",
-      "noSession": "オフラインのためランキング未登録です",
-      "error": "サーバーに接続できずランキング未登録です"
+      "pending": "スコアを確認中…",
+      "published": "ランキング登録完了：{rank}位",
+      "publishing": "登録中…",
+      "publishError": "登録に失敗しました（{reason}）",
+      "unpublished": "スコア {score}（登録すると {rank}位）",
+      "rejected": "スコアの確認に失敗しました（{reason}）",
+      "noSession": "オフラインのため登録できません",
+      "error": "サーバーに接続できず登録できません"
     },
-    "retryButton": "再び挑む",
-    "titleButton": "タイトルへ戻る",
-    "diffBadge": "{diff} の試練"
+    "publishButton": "ランキングに登録",
+    "publishingButton": "登録中…",
+    "retryButton": "もう一度",
+    "titleButton": "タイトルへ",
+    "diffBadge": "難易度：{diff}"
   },
   "components": {
     "score": "SCORE",

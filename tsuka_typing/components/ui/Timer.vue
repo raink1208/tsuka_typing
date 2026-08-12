@@ -34,16 +34,16 @@ const pct = computed(() =>
 }
 .label {
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  color: #7a6018;
-  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  color: #c8a63c;
+  font-weight: 700;
   text-transform: uppercase;
 }
 .value {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 1.6rem;
-  color: #d8cda0;
+  font-size: 1.8rem;
+  color: #f0e8c8;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -63,7 +63,7 @@ const pct = computed(() =>
 }
 
 .timer.urgent .value {
-  color: #c44030;
+  color: #ff6a55;
   text-shadow: 0 0 10px rgba(196,64,48,0.6);
   animation: tick-pulse 1s ease-in-out infinite;
 }

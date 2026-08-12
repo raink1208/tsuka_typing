@@ -31,6 +31,9 @@ export interface KeystrokeEvent {
 
 type SubmitStatus = 'idle' | 'pending' | 'accepted' | 'rejected' | 'error'
 
+/** ランキング掲載（プレイヤーが登録ボタンを押したときのみ実行）の状態 */
+type PublishStatus = 'idle' | 'pending' | 'published' | 'error'
+
 /**
  * ゲーム開始準備の進行状況。
  * startGame() は /api/game/start の往復を待つ非同期処理であり、その間
@@ -46,9 +49,10 @@ interface DiffConfig {
 }
 
 const DIFF_CONFIG: Record<Difficulty, DiffConfig> = {
-  easy:   { time: 70, tsukasaMaxHp: 500, dmgPerMiss: 5  },
-  normal: { time: 60,  tsukasaMaxHp: 300, dmgPerMiss: 10 },
-  hard:   { time: 50,  tsukasaMaxHp: 200, dmgPerMiss: 20 },
+  // 難易度の違いは出題ワードのみ。時間 / HP / ミスダメージは全難易度で共通。
+  easy:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  normal: { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  hard:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
 }
 
 /** 演出用ディレイ (ms) */
@@ -121,6 +125,8 @@ export const useGameStore = defineStore('game', {
     playerName: 'anonymous',
     submitStatus: 'idle' as SubmitStatus,
     submitReason: null as string | null,
+    publishStatus: 'idle' as PublishStatus,
+    publishReason: null as string | null,
     serverRank: null as number | null,
     serverScore: null as number | null,
   }),
@@ -227,6 +233,8 @@ export const useGameStore = defineStore('game', {
       this.keystrokeLog = []
       this.submitStatus = 'idle'
       this.submitReason = null
+      this.publishStatus = 'idle'
+      this.publishReason = null
       this.serverRank = null
       this.serverScore = null
       this.gameStartTime = performance.now()
@@ -537,6 +545,48 @@ export const useGameStore = defineStore('game', {
       } catch {
         this.submitStatus = 'error'
         this.submitReason = 'NETWORK_ERROR'
+      }
+    },
+
+    /**
+     * 検証済みのリザルトをランキングに掲載する。
+     * /api/game/submit の時点ではレコードは未掲載 (published = 0) で保存されており、
+     * リザルト画面でプレイヤーが登録ボタンを押したときだけ掲載状態に更新する。
+     */
+    async publishRanking() {
+      if (this.submitStatus !== 'accepted') return
+      if (this.publishStatus === 'pending' || this.publishStatus === 'published') return
+      if (!this.sessionId || !this.sessionToken) {
+        this.publishStatus = 'error'
+        this.publishReason = 'NO_SESSION'
+        return
+      }
+
+      this.publishStatus = 'pending'
+      this.publishReason = null
+      try {
+        const config = useRuntimeConfig()
+        const res = await $fetch<{ published: boolean; rank?: number; reason?: string }>(
+          `${config.public.apiBase}/api/game/publish`,
+          {
+            method: 'POST',
+            body: {
+              sessionId: this.sessionId,
+              token:     this.sessionToken,
+            },
+          },
+        )
+
+        if (res.published) {
+          this.publishStatus = 'published'
+          this.serverRank = res.rank ?? this.serverRank
+        } else {
+          this.publishStatus = 'error'
+          this.publishReason = res.reason ?? 'REJECTED'
+        }
+      } catch {
+        this.publishStatus = 'error'
+        this.publishReason = 'NETWORK_ERROR'
       }
     },
 

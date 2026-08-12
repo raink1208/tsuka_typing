@@ -227,9 +227,9 @@ onMounted(() => {
 }
 .subtitle-en {
   font-family: 'Cinzel', 'Times New Roman', serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.55em;
-  color: #7a6018;
+  font-size: 0.82rem;
+  letter-spacing: 0.4em;
+  color: #c8a63c;
   text-transform: uppercase;
   margin-bottom: 10px;
 }
@@ -248,9 +248,9 @@ onMounted(() => {
 }
 .subtitle-jp {
   font-family: 'Noto Serif JP', serif;
-  font-size: 0.72rem;
-  color: #7a6a48;
-  letter-spacing: 0.24em;
+  font-size: 0.9rem;
+  color: #c6b586;
+  letter-spacing: 0.2em;
   margin-top: 8px;
 }
 
@@ -283,13 +283,13 @@ onMounted(() => {
   z-index: 1;
 }
 .player-name-input {
-  width: 220px;
-  padding: 8px 12px;
+  width: 240px;
+  padding: 9px 12px;
   background: #1a1208;
   border: 1px solid #4a3218;
-  color: #d8cda0;
+  color: #ece2bc;
   font-family: 'Noto Serif JP', serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   text-align: center;
   outline: none;
   transition: border-color 0.2s;
@@ -298,7 +298,7 @@ onMounted(() => {
   border-color: #c8a028;
 }
 .player-name-input::placeholder {
-  color: #5a4a28;
+  color: #8f7c4c;
 }
 
 /* ── 難易度セクション ──────────────────── */
@@ -311,9 +311,9 @@ onMounted(() => {
 }
 .section-label {
   font-family: 'Cinzel', serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.38em;
-  color: #6a5a38;
+  font-size: 0.8rem;
+  letter-spacing: 0.28em;
+  color: #bda265;
   text-transform: uppercase;
 }
 .difficulty-buttons {
@@ -329,8 +329,8 @@ onMounted(() => {
   padding: 14px 16px;
   background: #1a1208;
   border: 1px solid #4a3218;
-  color: #6a5a38;
-  min-width: 108px;
+  color: #b3a173;
+  min-width: 116px;
   transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
@@ -364,20 +364,20 @@ onMounted(() => {
 }
 .diff-name {
   font-family: 'Noto Serif JP', serif;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
 .diff-detail {
   font-family: 'Cinzel', serif;
-  font-size: 0.58rem;
-  color: #5a4a28;
+  font-size: 0.74rem;
+  color: #a89263;
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
 .diff-btn.active .diff-detail {
   color: var(--d-color);
-  opacity: 0.72;
+  opacity: 0.9;
 }
 
 /* ── モードセクション ──────────────────── */
@@ -396,8 +396,8 @@ onMounted(() => {
   padding: 10px 20px;
   background: #1a1208;
   border: 1px solid #4a3218;
-  color: #6a5a38;
-  min-width: 280px;
+  color: #b3a173;
+  min-width: 300px;
   transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
   cursor: pointer;
 }
@@ -424,25 +424,25 @@ onMounted(() => {
 .mode-icon { font-size: 1.1rem; }
 .mode-name {
   font-family: 'Noto Serif JP', serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
 .mode-detail {
-  font-size: 0.6rem;
-  color: #5a4a28;
+  font-size: 0.76rem;
+  color: #a89263;
   letter-spacing: 0.04em;
   flex: 1;
 }
-.mode-btn.active .mode-detail { color: #a78bfa; opacity: 0.8; }
+.mode-btn.active .mode-detail { color: #c4b5fd; opacity: 0.95; }
 .mode-badge {
   font-family: 'Cinzel', serif;
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   padding: 2px 8px;
   border: 1px solid #4a3218;
-  color: #5a4a28;
+  color: #a89263;
   background: #120e06;
 }
 .mode-btn.active .mode-badge {
@@ -492,8 +492,8 @@ onMounted(() => {
 }
 .start-key {
   font-family: 'Cinzel', serif;
-  font-size: 0.55rem;
-  color: #7a6018;
+  font-size: 0.72rem;
+  color: #c8a63c;
   letter-spacing: 0.08em;
   background: none;
   border: none;
@@ -511,12 +511,12 @@ onMounted(() => {
   z-index: 1;
 }
 .how-to-list li {
-  font-size: 0.68rem;
-  color: #5a4a28;
+  font-size: 0.84rem;
+  color: #b3a173;
   letter-spacing: 0.06em;
 }
 .how-to-list li::before {
   content: '— ';
-  color: #7a5c28;
+  color: #c8a63c;
 }
 </style>

@@ -21,24 +21,24 @@ defineProps<{ combo: number }>()
 }
 .label {
   font-family: 'Cinzel', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.22em;
-  color: #7a6018;
-  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  color: #c8a63c;
+  font-weight: 700;
   text-transform: uppercase;
 }
 .value {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: rgba(200,160,40,0.25);
+  color: rgba(200,160,40,0.5);
   letter-spacing: 0.05em;
   transition: color 0.2s;
 }
-.x { font-size: 1rem; margin-right: 1px; }
+.x { font-size: 1.1rem; margin-right: 1px; }
 
 .active .value {
-  color: #9060c0;
+  color: #b98cf0;
   text-shadow: 0 0 10px rgba(144,96,192,0.6);
   animation: combo-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

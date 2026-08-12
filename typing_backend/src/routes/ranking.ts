@@ -25,7 +25,7 @@ ranking.get('/', async (c) => {
   const { results } = await c.env.DB.prepare(`
     SELECT player_name, score, kps, accuracy, difficulty, game_mode, played_at
     FROM rankings
-    WHERE difficulty = ? AND game_mode = ? AND verified = 1
+    WHERE difficulty = ? AND game_mode = ? AND verified = 1 AND published = 1
     ORDER BY score DESC
     LIMIT ?
   `).bind(difficulty, gameMode, limit).all<{
@@ -53,4 +53,3 @@ ranking.get('/', async (c) => {
 })
 
 export default ranking
-

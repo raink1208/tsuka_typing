@@ -254,24 +254,24 @@ watch(() => store.phase, (p) => {
 }
 .hp-char-label {
   font-family: 'Cinzel', serif;
-  font-size: 0.68rem;
+  font-size: 0.85rem;
   font-weight: 700;
   white-space: nowrap;
-  width: 100px;
+  width: 118px;
   flex-shrink: 0;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   /* プレイヤー名は最大30文字入力できるため、溢れた分は省略記号で切る */
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .hp-char-label.player {
-  color: #9060c0;
+  color: #b98cf0;
   text-shadow: 0 0 6px rgba(144,96,192,0.5);
   /* 入力された名前はランキング表示と一致させたいので大文字化しない */
   text-transform: none;
 }
-.hp-char-label.enemy  { color: #c44030; text-shadow: 0 0 6px rgba(196,64,48,0.5); }
+.hp-char-label.enemy  { color: #ec6a56; text-shadow: 0 0 6px rgba(196,64,48,0.5); }
 
 /* ── バトルエリア ───────────────────────── */
 .battle-area {
@@ -345,8 +345,8 @@ watch(() => store.phase, (p) => {
 }
 .input-hint {
   font-family: 'Cinzel', serif;
-  font-size: 0.55rem;
-  color: rgba(122,92,40,0.55);
+  font-size: 0.72rem;
+  color: rgba(200,168,90,0.8);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -411,24 +411,24 @@ watch(() => store.phase, (p) => {
 }
 .ready-hint {
   font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
-  color: #c8a028;
-  letter-spacing: 0.15em;
+  font-size: 1.1rem;
+  color: #e0bc4c;
+  letter-spacing: 0.12em;
   margin: 0;
 }
 .ready-hint-sub {
   font-family: 'Cinzel', serif;
-  font-size: 0.65rem;
-  color: rgba(122, 92, 40, 0.6);
-  letter-spacing: 0.1em;
+  font-size: 0.82rem;
+  color: rgba(200,168,90,0.85);
+  letter-spacing: 0.08em;
   margin: 0;
 }
 .loading-title {
   font-family: 'Cinzel', serif;
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   font-weight: 700;
-  color: #c8a028;
-  letter-spacing: 0.24em;
+  color: #e0bc4c;
+  letter-spacing: 0.2em;
   text-shadow: 0 0 16px rgba(200,160,40,0.5);
   margin: 0;
 }
@@ -451,8 +451,8 @@ watch(() => store.phase, (p) => {
   50%       { opacity: 1;   transform: scale(1); }
 }
 .ready-ime-warning {
-  font-size: 0.8rem;
-  color: #e06040;
+  font-size: 0.95rem;
+  color: #ff7a5a;
   text-shadow: 0 0 8px rgba(224,96,64,0.6);
   letter-spacing: 0.05em;
   margin: 0;

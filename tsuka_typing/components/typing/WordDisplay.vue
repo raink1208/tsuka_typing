@@ -16,9 +16,9 @@ defineProps<{ word: Word | null }>()
   line-height: 1.2;
 }
 .kanji {
-  font-size: 2.6rem;
+  font-size: 2.9rem;
   font-weight: 900;
-  color: #f0e8c8;
+  color: #fdf6e0;
   text-shadow:
     0 0 14px rgba(200,160,40,0.5),
     2px 2px 0 rgba(0,0,0,0.8);
@@ -26,9 +26,9 @@ defineProps<{ word: Word | null }>()
   font-family: 'Noto Serif JP', serif;
 }
 .hiragana {
-  font-size: 1.05rem;
-  color: #8a7a5a;
-  margin-top: 0.2rem;
+  font-size: 1.3rem;
+  color: #c8b98c;
+  margin-top: 0.3rem;
   letter-spacing: 0.18em;
   font-family: 'Noto Serif JP', serif;
 }

@@ -5,12 +5,14 @@ import { simulateGame, checkAnomalies } from '../utils/replay'
 import { generateWordSequence } from '../shared/wordShuffle'
 import { checkRateLimit } from '../utils/rateLimit'
 import { DIFF_CONFIG } from '../shared/types'
-import type { Difficulty, GameMode, SubmitRequest } from '../shared/types'
+import type { Difficulty, GameMode, SubmitRequest, PublishRequest } from '../shared/types'
 
 const VALID_DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard']
 const VALID_GAME_MODES:   GameMode[]   = ['normal', 'ra-na']
 const MAX_KEYSTROKE_LOG   = 10_000
 const MAX_PLAYER_NAME_LEN = 30
+/** ランキング掲載操作を受け付ける猶予時間 (ms)。リザルト画面での検討時間を見込む */
+const PUBLISH_GRACE_MS    = 30 * 60 * 1000
 
 function getIp(c: { req: { header: (name: string) => string | undefined } }): string {
   return (
@@ -232,6 +234,8 @@ game.post('/submit', async (c) => {
   }
 
   // ── DB 登録 ───────────────────────────────────────────────────────
+  // ここではスコアの検証・保存のみを行い、ランキングには掲載しない (published = 0)。
+  // 掲載するかどうかはプレイヤーがリザルト画面で選択し、/api/game/publish で確定する。
   const rankingId  = crypto.randomUUID()
   const accuracy   = result.totalKeystrokes === 0
     ? 100
@@ -246,8 +250,8 @@ game.post('/submit', async (c) => {
     c.env.DB.prepare(`
       INSERT INTO rankings
         (id, session_id, player_name, score, play_time, total_keystrokes, correct_keystrokes,
-         miss_count, accuracy, kps, max_combo, words_completed, difficulty, game_mode, verified, played_at, ip_address)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+         miss_count, accuracy, kps, max_combo, words_completed, difficulty, game_mode, verified, published, played_at, ip_address)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?)
     `).bind(
       rankingId,
       sessionId,
@@ -268,17 +272,123 @@ game.post('/submit', async (c) => {
     ),
   ])
 
-  // ── ランク取得 ─────────────────────────────────────────────────────
+  // ── 想定順位の取得 ─────────────────────────────────────────────────
+  // 未掲載のため確定順位ではなく「掲載した場合の順位」を返す。
   const rankRow = await c.env.DB.prepare(`
     SELECT COUNT(*) + 1 AS rank
     FROM rankings
-    WHERE difficulty = ? AND game_mode = ? AND score > ? AND verified = 1
+    WHERE difficulty = ? AND game_mode = ? AND score > ? AND verified = 1 AND published = 1
   `).bind(payload.difficulty, payload.gameMode, replayResult.score).first<{ rank: number }>()
 
   return c.json({
     accepted:    true,
     rank:        rankRow?.rank ?? 1,
     serverScore: replayResult.score,
+    published:   false,
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/game/publish
+// 検証済みリザルトをランキングに掲載する（プレイヤーの明示的な操作で呼ばれる）
+// ─────────────────────────────────────────────────────────────────────────────
+game.post('/publish', async (c) => {
+  const ip = getIp(c)
+
+  function reject(reason: string, status: 400 | 429 | 500, extra?: Record<string, unknown>) {
+    console.warn(`[game/publish] rejected reason=${reason} ip=${ip}${extra ? ' ' + JSON.stringify(extra) : ''}`)
+    return c.json({ published: false, reason }, status)
+  }
+
+  // レートリミット: 同一 IP から 1 時間に最大 60 回
+  if (!checkRateLimit(`publish:${ip}`, 60, 3_600_000)) {
+    return reject('RATE_LIMITED', 429)
+  }
+
+  let body: Partial<PublishRequest>
+  try {
+    body = await c.req.json()
+  } catch {
+    return reject('INVALID_JSON', 400)
+  }
+
+  const { sessionId, token } = body
+  if (typeof sessionId !== 'string' || typeof token !== 'string') {
+    return reject('MISSING_FIELDS', 400)
+  }
+
+  const SECRET = c.env.SERVER_SECRET ?? ''
+  if (!SECRET) {
+    return reject('SERVER_MISCONFIGURED', 500, { sessionId })
+  }
+
+  // ── セッショントークン検証 ────────────────────────────────────────
+  const payload = await verifyToken(token, SECRET)
+  if (!payload) {
+    return reject('INVALID_TOKEN', 400, { sessionId })
+  }
+  if (payload.sessionId !== sessionId) {
+    return reject('SESSION_ID_MISMATCH', 400, { sessionId, tokenSessionId: payload.sessionId })
+  }
+
+  const session = await c.env.DB.prepare('SELECT id, token_hash FROM game_sessions WHERE id = ?')
+    .bind(sessionId)
+    .first<{ id: string; token_hash: string }>()
+
+  if (!session) {
+    return reject('SESSION_NOT_FOUND', 400, { sessionId })
+  }
+
+  const suppliedHash = await hashToken(token)
+  if (session.token_hash !== suppliedHash) {
+    return reject('TOKEN_HASH_MISMATCH', 400, { sessionId })
+  }
+
+  // ── トークン有効期限チェック ──────────────────────────────────────
+  // 掲載操作はリザルト画面でプレイヤーが判断してから行われるため、
+  // /submit よりも長い猶予を認める。
+  const diffCfg  = DIFF_CONFIG[payload.difficulty]
+  const maxAgeMs = diffCfg.time * 1000 + PUBLISH_GRACE_MS
+  if (Date.now() > payload.startedAt + maxAgeMs) {
+    return reject('TOKEN_EXPIRED', 400, { sessionId, ageMs: Date.now() - payload.startedAt, maxAgeMs })
+  }
+
+  // ── 対象レコード取得 ──────────────────────────────────────────────
+  const record = await c.env.DB.prepare(`
+    SELECT id, score, difficulty, game_mode, verified, published
+    FROM rankings
+    WHERE session_id = ?
+  `).bind(sessionId).first<{
+    id: string
+    score: number
+    difficulty: string
+    game_mode: string
+    verified: number
+    published: number
+  }>()
+
+  if (!record) {
+    return reject('RESULT_NOT_FOUND', 400, { sessionId })
+  }
+  if (!record.verified) {
+    return reject('RESULT_NOT_VERIFIED', 400, { sessionId })
+  }
+
+  if (!record.published) {
+    await c.env.DB.prepare('UPDATE rankings SET published = 1 WHERE id = ? AND published = 0')
+      .bind(record.id)
+      .run()
+  }
+
+  const rankRow = await c.env.DB.prepare(`
+    SELECT COUNT(*) + 1 AS rank
+    FROM rankings
+    WHERE difficulty = ? AND game_mode = ? AND score > ? AND verified = 1 AND published = 1
+  `).bind(record.difficulty, record.game_mode, record.score).first<{ rank: number }>()
+
+  return c.json({
+    published: true,
+    rank:      rankRow?.rank ?? 1,
   })
 })
 

@@ -38,13 +38,13 @@ const colorClass = computed(() => {
 .hp-label {
   display: flex;
   justify-content: space-between;
-  font-size: 0.72rem;
+  font-size: 0.88rem;
   margin-bottom: 4px;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
-.name { color: #8a7a5a; font-family: 'Noto Serif JP', serif; }
-.value { color: #5a4a28; font-family: 'Share Tech Mono', monospace; }
+.name { color: #d8cda0; font-family: 'Noto Serif JP', serif; }
+.value { color: #c0ae7a; font-family: 'Share Tech Mono', monospace; }
 .bar-track {
   height: 11px;
   background: rgba(0, 0, 0, 0.7);
