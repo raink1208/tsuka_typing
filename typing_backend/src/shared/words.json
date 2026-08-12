@@ -102,5 +102,6 @@
   { "kanji": "力こそパワー", "hiragana": "ちからこそぱわー", "romaji": "tikarakosopawa-", "difficulty": 2 },
   { "kanji": "旅行", "hiragana": "りょこう", "romaji": "ryokou", "difficulty": 1 },
   { "kanji": "ぎょ...ぎょ...", "hiragana": "ぎょ...ぎょ...", "romaji": "gyo...gyo...", "difficulty": 1 },
-  { "kanji": "遅刻", "hiragana": "ちこく", "romaji": "tikoku", "difficulty": 1 }
+  { "kanji": "遅刻", "hiragana": "ちこく", "romaji": "tikoku", "difficulty": 1 },
+  { "kanji": "つかにゃん", "hiragana": "つかにゃん", "romaji": "tsukanyann", "difficulty": 1 }
 ]
