@@ -102,7 +102,5 @@
   { "kanji": "力こそパワー", "hiragana": "ちからこそぱわー", "romaji": "tikarakosopawa-", "difficulty": 2 },
   { "kanji": "旅行", "hiragana": "りょこう", "romaji": "ryokou", "difficulty": 1 },
   { "kanji": "ぎょ...ぎょ...", "hiragana": "ぎょ...ぎょ...", "romaji": "gyo...gyo...", "difficulty": 1 },
-
-  { "kanji": "その前に水を飲む！", "hiragana": "そのまえにみずをのむ！", "romaji": "sonomaenimizuwonomu!", "difficulty": 2 },
-  { "kanji": "うっひょ～～～", "hiragana": "うっひょーーー", "romaji": "uhhyo---", "difficulty": 1 }
+  { "kanji": "遅刻", "hiragana": "ちこく", "romaji": "tikoku", "difficulty": 1 }
 ]
