@@ -9,7 +9,7 @@
       <div v-if="store.showScorePopup" class="score-popup">
         +{{ store.lastEarnedScore.toLocaleString() }}
         <span v-if="store.combo >= 5" class="combo-bonus">
-          COMBO ×{{ Math.floor(store.combo / 5) + 1 }}
+          {{ t('components.comboBonus', { n: Math.floor(store.combo / 5) + 1 }) }}
         </span>
       </div>
     </Transition>
@@ -17,6 +17,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const store = useGameStore()
 </script>
 

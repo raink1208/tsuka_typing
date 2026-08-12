@@ -8,17 +8,26 @@
       <div class="enemy-glow" />
       <div class="enemy-emoji">{{ enemy?.emoji ?? '👾' }}</div>
     </div>
-    <div class="enemy-name">{{ enemy?.name ?? '???' }}</div>
-    <div class="enemy-desc">{{ enemy?.description ?? '' }}</div>
+    <div class="enemy-name">{{ displayName }}</div>
+    <div class="enemy-desc">{{ displayDesc }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Enemy } from '~/data/words'
-defineProps<{
+
+const { t } = useI18n()
+const props = defineProps<{
   enemy: Enemy | null
   state: 'idle' | 'attack' | 'damage' | 'dead'
 }>()
+
+const displayName = computed(() =>
+  props.enemy ? t(`enemies.${props.enemy.id}.name`) : t('enemies.unknown.name')
+)
+const displayDesc = computed(() =>
+  props.enemy ? t(`enemies.${props.enemy.id}.description`) : t('enemies.unknown.description')
+)
 </script>
 
 <style scoped>

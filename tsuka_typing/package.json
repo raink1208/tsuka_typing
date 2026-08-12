@@ -14,6 +14,7 @@
     "postinstall": "npm run sync-shared-data && nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/i18n": "^10.6.0",
     "@pinia/nuxt": "^0.5.4",
     "pinia": "^2.2.2"
   },
@@ -21,9 +22,9 @@
     "nuxt": "^3.13.2"
   },
   "allowScripts": {
-    "esbuild@0.27.7": true,
-    "esbuild@0.28.1": true,
     "@parcel/watcher@2.5.6": true,
-    "vue-demi@0.14.10": true
+    "vue-demi@0.14.10": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true
   }
 }

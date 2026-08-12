@@ -7,7 +7,7 @@
       <img
         v-if="imgSrc"
         :src="imgSrc"
-        alt="領国つかさ"
+        :alt="t('character.tsukasa.fullName')"
         class="sprite-img"
       />
       <div v-else class="placeholder-char">
@@ -16,11 +16,12 @@
         <div class="placeholder-glow" />
       </div>
     </div>
-    <div class="char-name">領国 つかさ</div>
+    <div class="char-name">{{ t('character.tsukasa.fullName') }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const props = defineProps<{
   state: 'idle' | 'attack' | 'damage' | 'dead'
 }>()

@@ -1,6 +1,6 @@
 <template>
   <div class="combo-display" :class="{ active: combo > 0 }">
-    <div class="label">COMBO</div>
+    <div class="label">{{ t('components.combo') }}</div>
     <div class="value" :key="combo">
       <span class="x">×</span>{{ combo }}
     </div>
@@ -8,6 +8,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 defineProps<{ combo: number }>()
 </script>
 

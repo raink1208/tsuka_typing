@@ -11,7 +11,7 @@
 
     <!-- 結果ヘッダー -->
     <header class="result-header">
-      <p class="result-label">Battle Chronicle</p>
+      <p class="result-label">{{ t('result.label') }}</p>
       <h1 class="result-title" :class="resultClass">{{ resultText }}</h1>
       <p class="result-sub">{{ resultSub }}</p>
     </header>
@@ -24,7 +24,7 @@
     <!-- スコア -->
     <div class="score-display">
       <div class="score-num">{{ store.score.toLocaleString() }}</div>
-      <div class="score-label">Experience Gained</div>
+      <div class="score-label">{{ t('result.scoreLabel') }}</div>
     </div>
 
     <!-- 統計 -->
@@ -33,60 +33,60 @@
         <span class="corner corner-tl" aria-hidden="true" />
         <span class="corner corner-br" aria-hidden="true" />
         <div class="stat-value">{{ store.wordsCompleted }}</div>
-        <div class="stat-label">Spells Cast</div>
+        <div class="stat-label">{{ t('result.stats.spellsCast') }}</div>
       </div>
       <div class="stat-card">
         <span class="corner corner-tl" aria-hidden="true" />
         <span class="corner corner-br" aria-hidden="true" />
         <div class="stat-value">{{ store.maxCombo }}</div>
-        <div class="stat-label">Max Chain</div>
+        <div class="stat-label">{{ t('result.stats.maxChain') }}</div>
       </div>
       <div class="stat-card" :class="{ danger: store.accuracy < 70 }">
         <span class="corner corner-tl" aria-hidden="true" />
         <span class="corner corner-br" aria-hidden="true" />
         <div class="stat-value">{{ store.accuracy }}<span class="stat-unit">%</span></div>
-        <div class="stat-label">Accuracy</div>
+        <div class="stat-label">{{ t('result.stats.accuracy') }}</div>
       </div>
       <div class="stat-card">
         <span class="corner corner-tl" aria-hidden="true" />
         <span class="corner corner-br" aria-hidden="true" />
         <div class="stat-value">{{ store.kps }}<span class="stat-unit">kps</span></div>
-        <div class="stat-label">Keys / Sec</div>
+        <div class="stat-label">{{ t('result.stats.keysPerSec') }}</div>
       </div>
       <div class="stat-card">
         <span class="corner corner-tl" aria-hidden="true" />
         <span class="corner corner-br" aria-hidden="true" />
         <div class="stat-value">{{ store.correctKeystrokes }}</div>
-        <div class="stat-label">Keys Typed</div>
+        <div class="stat-label">{{ t('result.stats.keysTyped') }}</div>
       </div>
       <div class="stat-card" :class="{ danger: store.missCount > 0 }">
         <span class="corner corner-tl" aria-hidden="true" />
         <span class="corner corner-br" aria-hidden="true" />
         <div class="stat-value">{{ store.missCount }}</div>
-        <div class="stat-label">Miss</div>
+        <div class="stat-label">{{ t('result.stats.miss') }}</div>
       </div>
     </div>
 
     <!-- ランキング送信状態 -->
     <div class="ranking-status" :class="rankingStatusClass">
-      <span v-if="store.submitStatus === 'pending'">ランキングに送信中…</span>
+      <span v-if="store.submitStatus === 'pending'">{{ t('result.ranking.pending') }}</span>
       <span v-else-if="store.submitStatus === 'accepted'">
-        ランキング登録: 第{{ store.serverRank }}位（検証済みスコア {{ store.serverScore }}）
+        {{ t('result.ranking.accepted', { rank: store.serverRank, score: store.serverScore }) }}
       </span>
-      <span v-else-if="store.submitStatus === 'rejected'">ランキング登録は却下されました（{{ store.submitReason }}）</span>
-      <span v-else-if="store.submitReason === 'NO_SESSION'">オフラインのためランキング未登録です</span>
-      <span v-else-if="store.submitStatus === 'error'">サーバーに接続できずランキング未登録です</span>
+      <span v-else-if="store.submitStatus === 'rejected'">{{ t('result.ranking.rejected', { reason: store.submitReason }) }}</span>
+      <span v-else-if="store.submitReason === 'NO_SESSION'">{{ t('result.ranking.noSession') }}</span>
+      <span v-else-if="store.submitStatus === 'error'">{{ t('result.ranking.error') }}</span>
     </div>
 
     <!-- ボタン -->
     <div class="result-actions">
-      <button class="btn-retry" @click="retry">再び挑む</button>
-      <button class="btn-title" @click="goTitle">タイトルへ戻る</button>
+      <button class="btn-retry" @click="retry">{{ t('result.retryButton') }}</button>
+      <button class="btn-title" @click="goTitle">{{ t('result.titleButton') }}</button>
     </div>
 
     <!-- 難易度バッジ -->
     <div class="diff-badge" :style="{ color: diffColor }">
-      {{ diffLabel }} の試練
+      {{ t('result.diffBadge', { diff: diffLabel }) }}
     </div>
   </div>
 </template>
@@ -94,6 +94,7 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 
+const { t } = useI18n()
 const store = useGameStore()
 
 // タイトルを経由していない場合はリダイレクト
@@ -102,8 +103,8 @@ onMounted(() => {
 })
 
 const resultText = computed(() => {
-  if (store.tsukasaHp <= 0)  return '敗北'
-  return '試練完了'
+  if (store.tsukasaHp <= 0)  return t('result.defeatTitle')
+  return t('result.clearTitle')
 })
 
 const resultClass = computed(() => {
@@ -112,14 +113,13 @@ const resultClass = computed(() => {
 })
 
 const resultSub = computed(() => {
-  if (store.tsukasaHp <= 0) return 'つかさは倒れてしまった…'
-  return `${store.wordsCompleted} の咒文を詠唱した`
+  if (store.tsukasaHp <= 0) return t('result.defeatSub')
+  return t('result.clearSub', { count: store.wordsCompleted })
 })
 
 const DIFF_COLORS  = { easy: '#44ff88', normal: '#ffd700', hard: '#ff4444' }
-const DIFF_LABELS  = { easy: 'かんたん', normal: 'ふつう', hard: 'むずかしい' }
 const diffColor    = computed(() => DIFF_COLORS[store.difficulty])
-const diffLabel    = computed(() => DIFF_LABELS[store.difficulty])
+const diffLabel    = computed(() => t(`difficulty.${store.difficulty}.label`))
 
 const rankingStatusClass = computed(() => ({
   accepted: store.submitStatus === 'accepted',

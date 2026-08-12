@@ -1,6 +1,6 @@
 <template>
   <div class="timer" :class="{ urgent: timeLeft <= 10 }">
-    <div class="label">TIME</div>
+    <div class="label">{{ t('components.time') }}</div>
     <div class="value">{{ formatted }}</div>
     <div class="bar-wrap">
       <div class="bar" :style="{ width: pct + '%' }" />
@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 const props = defineProps<{ timeLeft: number; maxTime: number }>()
 
 const formatted = computed(() => {

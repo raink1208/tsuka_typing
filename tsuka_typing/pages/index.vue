@@ -16,8 +16,8 @@
       <span class="corner corner-tr" aria-hidden="true" />
       <span class="corner corner-bl" aria-hidden="true" />
       <span class="corner corner-br" aria-hidden="true" />
-      <p class="subtitle-en">Typing Chronicle</p>
-      <p class="subtitle-jp">ローマ字タイピングバトル</p>
+      <p class="subtitle-en">{{ t('title.subtitleEn') }}</p>
+      <p class="subtitle-jp">{{ t('title.subtitleJp') }}</p>
     </header>
 
     <!-- 装飾区切り線 -->
@@ -27,19 +27,19 @@
 
     <!-- プレイヤー名 -->
     <section class="player-name-section">
-      <p class="section-label">名前を名乗れ</p>
+      <p class="section-label">{{ t('title.playerNameLabel') }}</p>
       <input
         v-model="playerName"
         class="player-name-input"
         type="text"
         maxlength="30"
-        placeholder="anonymous"
+        :placeholder="t('title.playerNamePlaceholder')"
       />
     </section>
 
     <!-- 難易度選択 -->
     <section class="difficulty-section">
-      <p class="section-label">試練の難度を選べ</p>
+      <p class="section-label">{{ t('title.difficultyLabel') }}</p>
       <div class="difficulty-buttons">
         <button
           v-for="d in difficulties"
@@ -53,15 +53,15 @@
           <span class="corner corner-bl" aria-hidden="true" />
           <span class="corner corner-br" aria-hidden="true" />
           <span class="diff-icon" aria-hidden="true">{{ d.icon }}</span>
-          <span class="diff-name">{{ d.label }}</span>
-          <span class="diff-detail">{{ d.detail }}</span>
+          <span class="diff-name">{{ t(`difficulty.${d.value}.label`) }}</span>
+          <span class="diff-detail">{{ t(`difficulty.${d.value}.detail`) }}</span>
         </button>
       </div>
     </section>
 
     <!-- モード選択 -->
     <section class="mode-section">
-      <p class="section-label">特殊ルール</p>
+      <p class="section-label">{{ t('title.modeLabel') }}</p>
       <button
         :class="['mode-btn', { active: selectedMode === 'ra-na' }]"
         @click="selectedMode = selectedMode === 'ra-na' ? 'normal' : 'ra-na'"
@@ -71,23 +71,23 @@
         <span class="corner corner-bl" aria-hidden="true" />
         <span class="corner corner-br" aria-hidden="true" />
         <span class="mode-icon" aria-hidden="true">🔀</span>
-        <span class="mode-name">ら→な変換</span>
-        <span class="mode-detail">ら行をな行で入力する</span>
-        <span class="mode-badge" aria-hidden="true">{{ selectedMode === 'ra-na' ? 'ON' : 'OFF' }}</span>
+        <span class="mode-name">{{ t('title.raNaModeName') }}</span>
+        <span class="mode-detail">{{ t('title.raNaModeDetail') }}</span>
+        <span class="mode-badge" aria-hidden="true">{{ selectedMode === 'ra-na' ? t('title.modeOn') : t('title.modeOff') }}</span>
       </button>
     </section>
 
     <!-- スタートボタン -->
     <button class="start-btn" @click="startGame">
       <span aria-hidden="true">⚔</span>
-      冒険を始める
-      <kbd class="start-key">Enter</kbd>
+      {{ t('title.startButton') }}
+      <kbd class="start-key">{{ t('title.startKey') }}</kbd>
     </button>
 
     <!-- 遊び方 -->
     <ul class="how-to-list">
-      <li>ローマ字でタイピング → つかさが攻撃</li>
-      <li>ミスすると敵の反撃を受ける</li>
+      <li>{{ t('title.howTo1') }}</li>
+      <li>{{ t('title.howTo2') }}</li>
     </ul>
   </div>
 </template>
@@ -95,6 +95,7 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 
+const { t } = useI18n()
 const store = useGameStore()
 
 const selectedDiff = ref<'easy' | 'normal' | 'hard'>('normal')
@@ -107,9 +108,9 @@ onMounted(() => {
 })
 
 const difficulties = [
-  { value: 'easy'   as const, label: 'かんたん',   detail: '70秒 / やさしい言葉', color: '#48a068', icon: '🌿' },
-  { value: 'normal' as const, label: 'ふつう',     detail: '60秒 / 普通の言葉',   color: '#c8a028', icon: '⚔' },
-  { value: 'hard'   as const, label: 'むずかしい', detail: '50秒 / 強力な言葉',   color: '#c44030', icon: '💀' },
+  { value: 'easy'   as const, color: '#48a068', icon: '🌿' },
+  { value: 'normal' as const, color: '#c8a028', icon: '⚔' },
+  { value: 'hard'   as const, color: '#c44030', icon: '💀' },
 ]
 
 function startGame() {

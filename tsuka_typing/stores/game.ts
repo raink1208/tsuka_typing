@@ -183,14 +183,6 @@ export const useGameStore = defineStore('game', {
         : 0,
 
     missCount: (s) => s.totalKeystrokes - s.correctKeystrokes,
-
-    /**
-     * 画面表示用のプレイヤー名。
-     * 名前が未入力の場合 playerName は 'anonymous'（ランキング送信値）になるが、
-     * ゲーム画面ではキャラクター名を出す。
-     */
-    displayPlayerName: (s): string =>
-      s.playerName === 'anonymous' ? 'つかさ' : s.playerName,
   },
 
   actions: {

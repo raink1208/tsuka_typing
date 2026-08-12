@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "title": "領国つかさ タイピングバトル",
+    "description": "領国つかさと共に戦うタイピングバトルゲーム"
+  },
+  "difficulty": {
+    "easy": { "label": "かんたん", "detail": "60秒 / やさしい言葉" },
+    "normal": { "label": "ふつう", "detail": "60秒 / 普通の言葉" },
+    "hard": { "label": "むずかしい", "detail": "60秒 / 強力な言葉" }
+  },
+  "character": {
+    "tsukasa": {
+      "fullName": "領国 つかさ",
+      "shortName": "つかさ"
+    }
+  },
+  "enemies": {
+    "tsukasa": {
+      "name": "領国つかさ",
+      "description": "よわよわの敵"
+    },
+    "unknown": {
+      "name": "???",
+      "description": ""
+    }
+  },
+  "title": {
+    "subtitleEn": "Typing Chronicle",
+    "subtitleJp": "ローマ字タイピングバトル",
+    "playerNameLabel": "名前を名乗れ",
+    "playerNamePlaceholder": "anonymous",
+    "difficultyLabel": "試練の難度を選べ",
+    "modeLabel": "特殊ルール",
+    "raNaModeName": "ら→な変換",
+    "raNaModeDetail": "ら行をな行で入力する",
+    "modeOn": "ON",
+    "modeOff": "OFF",
+    "startButton": "冒険を始める",
+    "startKey": "Enter",
+    "howTo1": "ローマ字でタイピング → つかさが攻撃",
+    "howTo2": "ミスすると敵の反撃を受ける"
+  },
+  "game": {
+    "loadingTitle": "NOW LOADING",
+    "loadingHint": "試練の書を紐解いています…",
+    "readyTitle": "READY?",
+    "readyHint": "スペースキーを押してスタート",
+    "imeWarning": "⚠ 半角モードに切り替えてください（半角/全角キー）",
+    "vs": "VS"
+  },
+  "result": {
+    "defeatTitle": "敗北",
+    "clearTitle": "試練完了",
+    "defeatSub": "つかさは倒れてしまった…",
+    "clearSub": "{count} の咒文を詠唱した",
+    "label": "Battle Chronicle",
+    "scoreLabel": "Experience Gained",
+    "stats": {
+      "spellsCast": "Spells Cast",
+      "maxChain": "Max Chain",
+      "accuracy": "Accuracy",
+      "keysPerSec": "Keys / Sec",
+      "keysTyped": "Keys Typed",
+      "miss": "Miss"
+    },
+    "ranking": {
+      "pending": "ランキングに送信中…",
+      "accepted": "ランキング登録: 第{rank}位（検証済みスコア {score}）",
+      "rejected": "ランキング登録は却下されました（{reason}）",
+      "noSession": "オフラインのためランキング未登録です",
+      "error": "サーバーに接続できずランキング未登録です"
+    },
+    "retryButton": "再び挑む",
+    "titleButton": "タイトルへ戻る",
+    "diffBadge": "{diff} の試練"
+  },
+  "components": {
+    "score": "SCORE",
+    "combo": "COMBO",
+    "time": "TIME",
+    "comboBonus": "COMBO ×{n}"
+  }
+}

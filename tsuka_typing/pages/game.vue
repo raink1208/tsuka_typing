@@ -14,18 +14,18 @@
       <div v-if="!hasStarted" class="ready-overlay">
         <!-- 出題準備中（/api/game/start の応答待ち） -->
         <div v-if="isLoading" class="ready-box">
-          <p class="loading-title">NOW LOADING</p>
+          <p class="loading-title">{{ t('game.loadingTitle') }}</p>
           <div class="loading-dots" aria-hidden="true">
             <span /><span /><span />
           </div>
-          <p class="ready-hint-sub">試練の書を紐解いています…</p>
+          <p class="ready-hint-sub">{{ t('game.loadingHint') }}</p>
         </div>
 
         <!-- 準備完了 -->
         <div v-else class="ready-box">
-          <p class="ready-title">READY?</p>
-          <p class="ready-hint">スペースキーを押してスタート</p>
-          <p v-if="showImeWarning" class="ready-ime-warning">⚠ 半角モードに切り替えてください（半角/全角キー）</p>
+          <p class="ready-title">{{ t('game.readyTitle') }}</p>
+          <p class="ready-hint">{{ t('game.readyHint') }}</p>
+          <p v-if="showImeWarning" class="ready-ime-warning">{{ t('game.imeWarning') }}</p>
         </div>
       </div>
     </Transition>
@@ -42,7 +42,7 @@
     <!-- ── HPバーエリア ─────────────── -->
     <section class="hp-section">
       <div class="hp-row">
-        <span class="hp-char-label player" :title="store.displayPlayerName">{{ store.displayPlayerName }}</span>
+        <span class="hp-char-label player" :title="displayPlayerName">{{ displayPlayerName }}</span>
         <BattleHpBar
           name=""
           :current="store.tsukasaHp"
@@ -51,7 +51,7 @@
         />
       </div>
       <div class="hp-row">
-        <span class="hp-char-label enemy">{{ store.displayEnemy?.name ?? '???' }}</span>
+        <span class="hp-char-label enemy">{{ displayEnemyName }}</span>
         <BattleHpBar
           name=""
           :current="store.displayEnemyHp"
@@ -66,7 +66,7 @@
       <BattleCharacterSprite :state="store.tsukasaAnim" />
 
       <div class="vs-area">
-        <span class="vs-text">VS</span>
+        <span class="vs-text">{{ t('game.vs') }}</span>
         <div class="lightning" aria-hidden="true">⚡</div>
       </div>
 
@@ -101,8 +101,17 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 
+const { t } = useI18n()
 const store = useGameStore()
 const { start, stop } = useGameLoop()
+
+const displayPlayerName = computed(() =>
+  store.playerName === 'anonymous' ? t('character.tsukasa.shortName') : store.playerName
+)
+const displayEnemyName = computed(() => {
+  const id = store.displayEnemy?.id
+  return id ? t(`enemies.${id}.name`) : t('enemies.unknown.name')
+})
 
 const inputFieldRef = ref()
 /** ゲームループが動き出したか（＝オーバーレイを消したか） */

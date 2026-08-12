@@ -9,12 +9,10 @@ export interface Word {
 
 export interface Enemy {
   id: string
-  name: string
   emoji: string
   maxHp: number
   attackPower: number
   color: string
-  description: string
 }
 
 // 実データは shared-data/words.json（単一の情報源。バックエンドと共有）。
@@ -22,14 +20,13 @@ export interface Enemy {
 // difficulty: 1 = <= 10 chars, 2 = 11-20 chars, 3 = 21+ chars
 export const WORDS: Word[] = wordsData as Word[]
 
+// 表示名・説明文は i18n/locales/*.json の enemies.<id> を参照する（EnemySprite.vue）
 export const ENEMIES: Enemy[] = [
   {
     id: 'tsukasa',
-    name: '領国つかさ',
     emoji: '🐱',
     maxHp: 150,
     attackPower: 0,
     color: '#44ff88',
-    description: 'よわよわの敵',
   },
 ]

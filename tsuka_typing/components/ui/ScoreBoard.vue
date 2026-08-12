@@ -1,11 +1,12 @@
 <template>
   <div class="score-board">
-    <div class="label">SCORE</div>
+    <div class="label">{{ t('components.score') }}</div>
     <div class="value">{{ score.toLocaleString() }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 defineProps<{ score: number }>()
 </script>
 
