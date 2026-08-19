@@ -5,6 +5,8 @@ export interface Word {
   hiragana: string
   romaji: string
   difficulty: 1 | 2 | 3
+  /** 由来のカテゴリ（shared-data/words/<category>.json のファイル名） */
+  category: string
 }
 
 export interface Enemy {

@@ -89,6 +89,9 @@
       <li>{{ t('title.howTo1') }}</li>
       <li>{{ t('title.howTo2') }}</li>
     </ul>
+
+    <!-- ワード一覧 -->
+    <NuxtLink to="/words" class="words-link">{{ t('title.wordsLink') }}</NuxtLink>
   </div>
 </template>
 
@@ -518,5 +521,20 @@ onMounted(() => {
 .how-to-list li::before {
   content: '— ';
   color: #c8a63c;
+}
+
+/* ── ワード一覧リンク ───────────────────── */
+.words-link {
+  z-index: 1;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  color: #b3a173;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200, 166, 60, 0.4);
+  transition: color 0.2s, border-color 0.2s;
+}
+.words-link:hover {
+  color: #e8c85a;
+  border-color: #c8a63c;
 }
 </style>

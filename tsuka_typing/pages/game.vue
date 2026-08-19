@@ -11,7 +11,26 @@
 
     <!-- ロード / スタート待機オーバーレイ -->
     <Transition name="ready-fade">
-      <div v-if="!hasStarted" class="ready-overlay">
+      <div v-if="!hasStarted" class="ready-overlay" @mousedown.prevent="focusReadyInput">
+        <!-- スタート判定用の隠し入力欄。押されたスペースが半角か全角かを
+             実際に入力された文字で判定するため、フォーカスを保持し続ける -->
+        <input
+          ref="readyInputRef"
+          class="ready-input"
+          :aria-label="t('game.readyHint')"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="none"
+          spellcheck="false"
+          inputmode="none"
+          @beforeinput="onReadyBeforeInput"
+          @input="clearReadyInput"
+          @compositionstart="onReadyComposition"
+          @compositionupdate="onReadyComposition"
+          @compositionend="onReadyComposition"
+          @blur="onReadyBlur"
+        >
+
         <!-- 出題準備中（/api/game/start の応答待ち） -->
         <div v-if="isLoading" class="ready-box">
           <p class="loading-title">{{ t('game.loadingTitle') }}</p>
@@ -114,6 +133,8 @@ const displayEnemyName = computed(() => {
 })
 
 const inputFieldRef = ref()
+/** スタート待機中に押されたスペースを受け取る隠し入力欄 */
+const readyInputRef = ref<HTMLInputElement>()
 /** ゲームループが動き出したか（＝オーバーレイを消したか） */
 const hasStarted = ref(false)
 const showImeWarning = ref(false)
@@ -141,18 +162,75 @@ watch(isLoading, (loading) => {
   if (!loading && pendingStart.value) beginGame()
 })
 
-function onKeydown(e: KeyboardEvent) {
-  if (!hasStarted.value && e.code === 'Space') {
-    // IMEが全角モードだと key が 'Process' になるか isComposing が true になる
-    if (e.key === 'Process' || e.isComposing) {
-      e.preventDefault()
-      showImeWarning.value = true
-      return
-    }
-    e.preventDefault()
-    showImeWarning.value = false
-    beginGame()
+function focusReadyInput() {
+  if (hasStarted.value) return
+  nextTick(() => readyInputRef.value?.focus())
+}
+
+function clearReadyInput() {
+  const el = readyInputRef.value
+  if (el) el.value = ''
+}
+
+/** IME が全角モードのまま入力された（＝ローマ字が打てない）状態 */
+function rejectFullWidth() {
+  showImeWarning.value = true
+  clearReadyInput()
+}
+
+/**
+ * スタートのスペースを「実際に入力された文字」で判定する。
+ * 半角モード → ' '（U+0020）／全角モード → '　'（U+3000）や かな が入る。
+ */
+function onReadyBeforeInput(e: InputEvent) {
+  const data = e.data
+  if (data == null) return
+  if (e.cancelable) e.preventDefault()
+
+  if (data === ' ') {
+    acceptReadyInput()
+    return
   }
+  // 半角ASCII以外（全角スペース・かな等）が入る＝IMEが全角モード
+  if (/[^\x20-\x7E]/.test(data)) rejectFullWidth()
+  else clearReadyInput()
+}
+
+function acceptReadyInput() {
+  showImeWarning.value = false
+  clearReadyInput()
+  beginGame()
+}
+
+/** IME の変換が始まった時点で全角モード確定 */
+function onReadyComposition(e: CompositionEvent) {
+  if (e.cancelable) e.preventDefault()
+  rejectFullWidth()
+}
+
+function onReadyBlur() {
+  // フォーカスが外れると半角/全角の判定ができなくなるため取り戻す
+  setTimeout(() => {
+    if (!hasStarted.value && document.hasFocus()) readyInputRef.value?.focus()
+  }, 0)
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (hasStarted.value || e.code !== 'Space') return
+
+  // 隠し入力欄にフォーカスがある通常ケースは beforeinput 側で判定するため
+  // ここでは握り潰さない（preventDefault すると文字が入らず判定できない）
+  if (readyInputRef.value && document.activeElement === readyInputRef.value) return
+
+  // フォーカスを取れていない環境向けのフォールバック（従来の keydown 判定）
+  e.preventDefault()
+  if (e.key === 'Process' || e.isComposing) {
+    showImeWarning.value = true
+    focusReadyInput()
+    return
+  }
+  showImeWarning.value = false
+  beginGame()
 }
 
 // タイトルを経由していない場合はリダイレクト
@@ -162,6 +240,7 @@ onMounted(() => {
     return
   }
   window.addEventListener('keydown', onKeydown)
+  focusReadyInput()
 })
 
 onUnmounted(() => {
@@ -449,6 +528,15 @@ watch(() => store.phase, (p) => {
 @keyframes loading-blink {
   0%, 100% { opacity: 0.2; transform: scale(0.8); }
   50%       { opacity: 1;   transform: scale(1); }
+}
+.ready-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  border: none;
+  outline: none;
+  pointer-events: none;
 }
 .ready-ime-warning {
   font-size: 0.95rem;

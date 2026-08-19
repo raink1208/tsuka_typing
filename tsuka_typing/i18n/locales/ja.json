@@ -26,7 +26,7 @@
   },
   "title": {
     "subtitleEn": "Typing Game",
-    "subtitleJp": "ローマ字タイピングバトル",
+    "subtitleJp": "つかタイピング Beta",
     "playerNameLabel": "プレイヤー名",
     "playerNamePlaceholder": "anonymous",
     "difficultyLabel": "難易度",
@@ -38,7 +38,8 @@
     "startButton": "スタート",
     "startKey": "Enter",
     "howTo1": "ローマ字で入力すると攻撃",
-    "howTo2": "ミスすると反撃を受ける"
+    "howTo2": "ミスすると反撃を受ける",
+    "wordsLink": "出題ワード一覧"
   },
   "game": {
     "loadingTitle": "NOW LOADING",
@@ -84,5 +85,40 @@
     "combo": "COMBO",
     "time": "TIME",
     "comboBonus": "COMBO ×{n}"
+  },
+  "words": {
+    "title": "出題ワード一覧",
+    "count": "{shown} / {total} 語",
+    "searchPlaceholder": "ワードを検索",
+    "difficultyLabel": "難易度で絞り込み",
+    "categoryLabel": "カテゴリで絞り込み",
+    "filters": {
+      "all": "すべて",
+      "d1": "かんたん",
+      "d2": "ふつう",
+      "d3": "むずかしい"
+    },
+    "header": {
+      "kanji": "単語",
+      "hiragana": "よみ",
+      "romaji": "ローマ字",
+      "category": "カテゴリ",
+      "difficulty": "難易度"
+    },
+    "difficulty": {
+      "1": "かんたん",
+      "2": "ふつう",
+      "3": "むずかしい"
+    },
+    "categories": {
+      "general": "一般",
+      "tsukasa": "つかさ",
+      "dajare": "だじゃれ",
+      "slang": "スラング",
+      "tag": "タグ",
+      "event": "イベント"
+    },
+    "empty": "該当するワードがありません",
+    "backButton": "タイトルへ"
   }
 }

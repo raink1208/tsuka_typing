@@ -7,6 +7,7 @@
  *   - shared-data/words/*.json  … カテゴリごとの単語ファイル
  *       1件の形式: { "kanji": "表示文字列", "hiragana": "よみ", "difficulty": 1|2|3 }
  *       ※ romaji は書かない。hiragana と kana-map.json から自動生成される。
+ *       ※ category も書かない。ファイル名（拡張子なし）から自動付与される。
  *   - shared-data/kana-map.json … かな→ローマ字パターン対応表
  *
  * ■ 生成物（直接編集しない）
@@ -142,6 +143,10 @@ function buildWords() {
         errors.push(`${where} (${entry.kanji}): romaji は自動生成されるため記述しないでください`)
         continue
       }
+      if ('category' in entry) {
+        errors.push(`${where} (${entry.kanji}): category はファイル名から自動付与されるため記述しないでください`)
+        continue
+      }
 
       const { romaji, unknown } = toRomaji(entry.hiragana)
 
@@ -168,7 +173,8 @@ function buildWords() {
       }
       seenRomaji.set(romaji, `${where} (${entry.kanji})`)
 
-      words.push({ kanji: entry.kanji, hiragana: entry.hiragana, romaji, difficulty: entry.difficulty })
+      // category はファイル名（拡張子なし）から自動付与する
+      words.push({ kanji: entry.kanji, hiragana: entry.hiragana, romaji, difficulty: entry.difficulty, category })
     }
 
     console.log(`loaded shared-data/words/${file} (${category}: ${entries.length} words)`)
