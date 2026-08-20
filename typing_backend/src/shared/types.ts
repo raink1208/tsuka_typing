@@ -9,9 +9,9 @@ export interface DiffConfig {
 
 export const DIFF_CONFIG: Record<Difficulty, DiffConfig> = {
   // 難易度の違いは出題ワードのみ。時間 / HP / ミスダメージは全難易度で共通。
-  easy:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
-  normal: { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
-  hard:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  easy:   { time: 100, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  normal: { time: 100, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  hard:   { time: 100, tsukasaMaxHp: 300, dmgPerMiss: 10 },
 }
 
 export interface GameRecord {

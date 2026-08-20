@@ -50,9 +50,9 @@ interface DiffConfig {
 
 const DIFF_CONFIG: Record<Difficulty, DiffConfig> = {
   // 難易度の違いは出題ワードのみ。時間 / HP / ミスダメージは全難易度で共通。
-  easy:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
-  normal: { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
-  hard:   { time: 60, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  easy:   { time: 100, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  normal: { time: 100, tsukasaMaxHp: 300, dmgPerMiss: 10 },
+  hard:   { time: 100, tsukasaMaxHp: 300, dmgPerMiss: 10 },
 }
 
 /** 演出用ディレイ (ms) */
@@ -74,7 +74,7 @@ export const useGameStore = defineStore('game', {
     score: 0,
     combo: 0,
     maxCombo: 0,
-    timeLeft: 90,
+    timeLeft: 100,
     wordsCompleted: 0,
     totalKeystrokes: 0,
     correctKeystrokes: 0,
