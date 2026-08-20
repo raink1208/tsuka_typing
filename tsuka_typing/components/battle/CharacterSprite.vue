@@ -2,19 +2,17 @@
   <!-- つかさキャラクタースプライト -->
   <div class="character-sprite" :class="`anim-${state}`">
     <div class="sprite-inner">
-      <!-- 実際の立ち絵を public/images/tsukasa/ に配置してください -->
-      <!-- idle: tsukasa-idle.png / attack: tsukasa-attack.png / damage: tsukasa-damage.png -->
       <img
-        v-if="imgSrc"
         :src="imgSrc"
         :alt="t('character.tsukasa.fullName')"
         class="sprite-img"
       />
-      <div v-else class="placeholder-char">
-        <div class="placeholder-ring" />
-        <div class="placeholder-icon">⚔️</div>
-        <div class="placeholder-glow" />
-      </div>
+      <!-- 被弾時の赤フラッシュ（立ち絵をマスクにした赤いシルエット） -->
+      <div
+        class="damage-tint"
+        :style="{ '--sprite-url': `url('${imgSrc}')` }"
+        aria-hidden="true"
+      />
     </div>
     <div class="char-name">{{ t('character.tsukasa.fullName') }}</div>
   </div>
@@ -26,7 +24,7 @@ const props = defineProps<{
   state: 'idle' | 'attack' | 'damage' | 'dead'
 }>()
 
-// 画像がある場合は state に応じて切り替え
+// state に応じて立ち絵を切り替え（public/images/tsukasa/）
 const IMG_BASE = '/images/tsukasa/'
 const IMG_MAP: Record<string, string> = {
   idle:   IMG_BASE + 'idle.png',
@@ -34,21 +32,8 @@ const IMG_MAP: Record<string, string> = {
   damage: IMG_BASE + 'damage.png',
   dead:   IMG_BASE + 'damage.png',
 }
-const imgExists = ref(false)
 
-// 画像存在チェック（なければプレースホルダー表示）
-onMounted(async () => {
-  try {
-    const res = await fetch(IMG_MAP['idle'], { method: 'HEAD' })
-    imgExists.value = res.ok
-  } catch {
-    imgExists.value = false
-  }
-})
-
-const imgSrc = computed(() =>
-  imgExists.value ? IMG_MAP[props.state] ?? IMG_MAP['idle'] : null
-)
+const imgSrc = computed(() => IMG_MAP[props.state] ?? IMG_MAP['idle'])
 </script>
 
 <style scoped>
@@ -57,48 +42,37 @@ const imgSrc = computed(() =>
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  width: 140px;
+  width: clamp(140px, 20vw, 230px);
 }
 .sprite-inner {
-  width: 120px;
-  height: 160px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.sprite-img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-/* ── プレースホルダー ── */
-.placeholder-char {
   position: relative;
-  width: 100px;
-  height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  height: clamp(180px, 34vh, 310px);
+  /* 足元を軸に拡大・移動させる */
+  transform-origin: bottom center;
 }
-.placeholder-ring {
-  position: absolute;
-  inset: 10px;
-  border-radius: 50%;
-  border: 3px solid #9060c0;
-  box-shadow: 0 0 16px rgba(144,96,192,0.5), inset 0 0 16px rgba(144,96,192,0.1);
+/* 立ち絵とマスクの描画位置を一致させるため、両方コンテナ全体に敷く */
+.sprite-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
 }
-.placeholder-icon {
-  font-size: 3rem;
-  z-index: 1;
-  filter: drop-shadow(0 0 8px rgba(200,160,40,0.6));
-}
-.placeholder-glow {
+.damage-tint {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse, rgba(144,96,192,0.1) 0%, transparent 70%);
-  border-radius: 50%;
+  background: #ff2b2b;
+  opacity: 0;
+  pointer-events: none;
+  /* 立ち絵のシルエットで赤を切り抜く */
+  -webkit-mask-image: var(--sprite-url);
+  -webkit-mask-size: contain;
+  -webkit-mask-position: bottom center;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: var(--sprite-url);
+  mask-size: contain;
+  mask-position: bottom center;
+  mask-repeat: no-repeat;
 }
 
 .char-name {
@@ -112,17 +86,21 @@ const imgSrc = computed(() =>
 }
 
 /* ── アニメーション状態 ── */
-.anim-idle .placeholder-char {
+/* 立ち絵と赤フラッシュを一緒に動かすため sprite-inner に当てる */
+.anim-idle .sprite-inner {
   animation: char-idle 2.5s ease-in-out infinite;
 }
-.anim-attack .placeholder-char {
+.anim-attack .sprite-inner {
   animation: char-attack 0.6s ease forwards;
 }
-.anim-damage .placeholder-char {
+.anim-damage .sprite-inner {
   animation: char-damage 0.5s ease;
 }
-.anim-dead .placeholder-char {
+.anim-dead .sprite-inner {
   animation: char-dead 0.8s ease forwards;
+}
+.anim-damage .damage-tint {
+  animation: damage-tint 0.5s ease;
 }
 
 @keyframes char-idle {
@@ -136,11 +114,17 @@ const imgSrc = computed(() =>
   100% { transform: translateX(0) scale(1); }
 }
 @keyframes char-damage {
-  0%, 100% { transform: translateX(0); filter: brightness(1); }
-  20%      { transform: translateX(-10px); filter: brightness(2) hue-rotate(310deg); }
-  40%      { transform: translateX(10px);  filter: brightness(2) hue-rotate(310deg); }
-  60%      { transform: translateX(-6px);  filter: brightness(1.5) hue-rotate(310deg); }
-  80%      { transform: translateX(6px);   filter: brightness(1.5); }
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-10px); }
+  40%      { transform: translateX(10px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+@keyframes damage-tint {
+  0%        { opacity: 0; }
+  15%, 45%  { opacity: 0.72; filter: drop-shadow(0 0 12px rgba(255,40,40,0.9)); }
+  75%       { opacity: 0.3;  filter: drop-shadow(0 0 8px rgba(255,60,60,0.5)); }
+  100%      { opacity: 0; }
 }
 @keyframes char-dead {
   0%   { transform: scale(1) rotate(0deg); opacity: 1; }

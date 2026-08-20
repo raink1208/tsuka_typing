@@ -84,11 +84,6 @@
     <section class="battle-area">
       <BattleCharacterSprite :state="store.tsukasaAnim" />
 
-      <div class="vs-area">
-        <span class="vs-text">{{ t('game.vs') }}</span>
-        <div class="lightning" aria-hidden="true">⚡</div>
-      </div>
-
       <BattleEnemySprite
         :enemy="store.displayEnemy"
         :state="store.enemyAnim"
