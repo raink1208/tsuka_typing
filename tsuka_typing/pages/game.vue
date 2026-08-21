@@ -133,29 +133,19 @@ const readyInputRef = ref<HTMLInputElement>()
 /** ゲームループが動き出したか（＝オーバーレイを消したか） */
 const hasStarted = ref(false)
 const showImeWarning = ref(false)
-/** ロード中に押されたスペースを覚えておき、準備完了と同時に自動スタートする */
-const pendingStart = ref(false)
 
 const isLoading = computed(() => store.startStatus !== 'ready')
 
 function beginGame() {
   if (hasStarted.value) return
-  // 出題準備が済むまではスタートさせない。ワード未生成のまま
-  // タイマーだけが進み、打鍵が握り潰されるのを防ぐ。
-  if (isLoading.value) {
-    pendingStart.value = true
-    return
-  }
+  // 出題準備（セッション発行・単語列生成）が済むまではスタート入力を受け付けない。
+  // ロード中の入力はバッファもせず破棄し、準備完了後に改めて押してもらう。
+  if (isLoading.value) return
   hasStarted.value = true
   store.beginPlaying()
   start()
   nextTick(() => inputFieldRef.value?.focus())
 }
-
-// ロード中に押されたスペースを、準備完了の瞬間に消化する
-watch(isLoading, (loading) => {
-  if (!loading && pendingStart.value) beginGame()
-})
 
 function focusReadyInput() {
   if (hasStarted.value) return
@@ -181,6 +171,12 @@ function onReadyBeforeInput(e: InputEvent) {
   const data = e.data
   if (data == null) return
   if (e.cancelable) e.preventDefault()
+
+  // 準備完了前の入力はすべて破棄する
+  if (isLoading.value) {
+    clearReadyInput()
+    return
+  }
 
   if (data === ' ') {
     acceptReadyInput()
@@ -212,6 +208,11 @@ function onReadyBlur() {
 
 function onKeydown(e: KeyboardEvent) {
   if (hasStarted.value || e.code !== 'Space') return
+  // 準備完了前はスクロールだけ抑止して、スタート入力としては扱わない
+  if (isLoading.value) {
+    e.preventDefault()
+    return
+  }
 
   // 隠し入力欄にフォーカスがある通常ケースは beforeinput 側で判定するため
   // ここでは握り潰さない（preventDefault すると文字が入らず判定できない）
