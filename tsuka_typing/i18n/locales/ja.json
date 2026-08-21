@@ -75,6 +75,22 @@
       "noSession": "オフラインのため登録できません",
       "error": "サーバーに接続できず登録できません"
     },
+    "share": {
+      "heading": "結果を共有",
+      "textScore": "{score} 点！",
+      "textDiff": "難易度：{diff}",
+      "textDiffMode": "難易度：{diff}（{mode}）",
+      "textRank": "ランキング {rank} 位",
+      "textStats": "Words {words}／MaxCombo {combo}／Accuracy {accuracy}%／{kps} keys per sec",
+      "x": "Xで共有",
+      "bluesky": "Blueskyで共有",
+      "misskey": "Misskeyで共有",
+      "native": "その他で共有",
+      "copy": "テキストをコピー",
+      "copied": "共有テキストをコピーしました",
+      "copyError": "コピーできませんでした。テキストを選択してコピーしてください",
+      "shareError": "共有画面を開けませんでした。テキストをコピーしてご利用ください"
+    },
     "publishButton": "ランキングに登録",
     "publishingButton": "登録中…",
     "retryButton": "もう一度",

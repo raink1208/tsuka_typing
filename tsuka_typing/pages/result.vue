@@ -101,6 +101,50 @@
       <button class="btn-title" @click="goTitle">{{ t('result.titleButton') }}</button>
     </div>
 
+    <!-- SNS共有 -->
+    <section class="share-section">
+      <p class="share-heading">{{ t('result.share.heading') }}</p>
+      <div class="share-buttons">
+        <button class="share-btn is-x" @click="shareTo('x', shareResult)">
+          <span class="share-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+              <path
+                fill="currentColor"
+                d="M18.9 2.2h3.4l-7.4 8.5L23 21.8h-6.8l-5.3-6.9-6.1 6.9H1.4l7.9-9L1 2.2h6.9l5 6.6 6-6.6Zm-1.2 17.5h1.9L6.4 4.2H4.4l13.3 15.5Z"
+              />
+            </svg>
+          </span>
+          <span class="share-name">{{ t('result.share.x') }}</span>
+        </button>
+        <button class="share-btn is-bluesky" @click="shareTo('bluesky', shareResult)">
+          <span class="share-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+              <path
+                fill="currentColor"
+                d="M6.3 3.6C8.9 5.5 11.6 9.5 12 11.7c.4-2.2 3.1-6.2 5.7-8.1 1.9-1.4 4.9-2.5 4.9 1 0 .7-.4 5.8-.6 6.6-.8 2.9-3.7 3.6-6.3 3.2 4.5.8 5.7 3.4 3.2 6-4.6 4.8-6.7-1.3-7-2.8 0-.3-.1-.4-.1 0-.3 1.5-2.4 7.6-7 2.8-2.4-2.6-1.3-5.2 3.2-6-2.6.4-5.5-.3-6.2-3.2C.9 10.4.5 5.3.5 4.6c0-3.5 3-2.4 4.9-1Z"
+              />
+            </svg>
+          </span>
+          <span class="share-name">{{ t('result.share.bluesky') }}</span>
+        </button>
+        <button class="share-btn is-misskey" @click="shareTo('misskey', shareResult)">
+          <span class="share-icon" aria-hidden="true">🌏</span>
+          <span class="share-name">{{ t('result.share.misskey') }}</span>
+        </button>
+        <button class="share-btn is-copy" @click="copyShareText(shareResult)">
+          <span class="share-icon" aria-hidden="true">⧉</span>
+          <span class="share-name">{{ t('result.share.copy') }}</span>
+        </button>
+        <button v-if="canNativeShare" class="share-btn is-native" @click="shareNative(shareResult)">
+          <span class="share-icon" aria-hidden="true">↗</span>
+          <span class="share-name">{{ t('result.share.native') }}</span>
+        </button>
+      </div>
+      <p v-if="shareFeedback !== 'idle'" class="share-feedback" :class="{ error: shareFeedback !== 'copied' }" role="status">
+        {{ t(`result.share.${shareFeedback}`) }}
+      </p>
+    </section>
+
     <!-- ランキング -->
     <NuxtLink :to="rankingLink" class="ranking-link">{{ t('result.rankingLink') }}</NuxtLink>
 
@@ -112,6 +156,8 @@
 </template>
 
 <script setup lang="ts">
+import type { ShareResult } from '~/composables/useResultShare'
+
 definePageMeta({ ssr: false })
 
 const { t } = useI18n()
@@ -158,6 +204,26 @@ const canPublish = computed(() =>
   store.submitStatus === 'accepted' && store.publishStatus !== 'published',
 )
 
+const {
+  feedback: shareFeedback,
+  canNativeShare,
+  shareTo,
+  shareNative,
+  copyShareText,
+} = useResultShare()
+
+/** 共有テキストに載せるリザルト。順位はランキング掲載済みのときだけ含める */
+const shareResult = computed<ShareResult>(() => ({
+  score:          store.score,
+  wordsCompleted: store.wordsCompleted,
+  maxCombo:       store.maxCombo,
+  accuracy:       store.accuracy,
+  kps:            store.kps,
+  difficulty:     store.difficulty,
+  gameMode:       store.gameMode,
+  rank:           store.publishStatus === 'published' ? store.serverRank : null,
+}))
+
 function publish() {
   store.publishRanking()
 }
@@ -194,7 +260,10 @@ function goTitle() {
   background: linear-gradient(160deg, #1c1508 0%, #100c06 100%);
   border: 1px solid #5a3c14;
   border-radius: 0;
-  overflow: hidden;
+  /* 共有セクションを含めた全高がビューポートを超えたときだけ縦スクロールさせる */
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .bg-glow {
   position: absolute;
@@ -346,6 +415,70 @@ function goTitle() {
   border-color: #7a5c28;
   color: #c8a028;
 }
+
+/* ── SNS共有 ── */
+.share-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  z-index: 1;
+}
+.share-heading {
+  font-family: 'Cinzel', 'Noto Serif JP', serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  color: #b09a5e;
+}
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, #1c1408 0%, #120d06 100%);
+  border: 1px solid #5a3c14;
+  color: #b3a173;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.share-btn:hover {
+  border-color: var(--share-accent, #c8a028);
+  color: var(--share-accent, #e8c85a);
+  box-shadow: 0 0 14px rgba(200, 160, 40, 0.18);
+}
+.share-btn.is-x        { --share-accent: #f0f0f0; }
+.share-btn.is-bluesky  { --share-accent: #6aa8ff; }
+.share-btn.is-misskey  { --share-accent: #8ce09a; }
+.share-btn.is-copy,
+.share-btn.is-native   { --share-accent: #e8c85a; }
+.share-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.share-icon svg { width: 100%; height: 100%; display: block; }
+
+.share-feedback {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: #8fe8b4;
+  text-align: center;
+}
+.share-feedback.error { color: #e05a48; }
 
 /* ── ランキングリンク ── */
 .ranking-link {

@@ -13,11 +13,21 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
+const config = useRuntimeConfig()
 
+// SNSに共有されたリンクのカード表示用（OGP / Twitter Card）
 useHead({
   title: () => t('meta.title'),
   meta: [
     { name: 'description', content: () => t('meta.description') },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: () => t('meta.title') },
+    { property: 'og:title', content: () => t('meta.title') },
+    { property: 'og:description', content: () => t('meta.description') },
+    { property: 'og:url', content: config.public.siteUrl },
+    { name: 'twitter:card', content: 'summary' },
+    { name: 'twitter:title', content: () => t('meta.title') },
+    { name: 'twitter:description', content: () => t('meta.description') },
   ],
 })
 </script>

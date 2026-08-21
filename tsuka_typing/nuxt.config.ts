@@ -15,6 +15,9 @@ export default defineNuxtConfig({
     public: {
       // typing_backend の API ベースURL（環境変数 NUXT_PUBLIC_API_BASE で上書き可能）
       apiBase: 'http://localhost:3001',
+      // SNS共有時に載せる公開URL（環境変数 NUXT_PUBLIC_SITE_URL で上書き可能）。
+      // 空にすると実行中のオリジンを使う
+      siteUrl: 'https://tsuka-typing.tsukasa-kingdom.net',
     },
   },
   app: {
