@@ -268,7 +268,7 @@ watch(() => store.phase, (p) => {
 .game-screen {
   position: relative;
   width: min(860px, 100vw);
-  height: 100vh;
+  height: 100%;
   max-height: 680px;
   display: flex;
   flex-direction: column;

@@ -1,6 +1,13 @@
 <template>
   <div class="app-root">
-    <NuxtPage />
+    <main class="app-main">
+      <NuxtPage />
+    </main>
+
+    <footer class="site-footer">
+      <p class="site-footer-line is-primary">{{ t('footer.disclaimer') }}</p>
+      <p class="site-footer-line is-secondary">{{ t('footer.copyright') }}</p>
+    </footer>
   </div>
 </template>
 
@@ -70,13 +77,56 @@ html, body {
   width: 100vw;
   height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   background:
     radial-gradient(ellipse at 15% 85%, rgba(100,40,10,0.30) 0%, transparent 45%),
     radial-gradient(ellipse at 85% 15%, rgba(70,25,90,0.20) 0%, transparent 45%),
     linear-gradient(160deg, #120e06 0%, #0e0b04 55%, #090704 100%);
   overflow: hidden;
+}
+
+/* ページ表示領域（フッターを除いた高さ） */
+.app-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* ── サイトフッター（非公式ファンサイト注記） ── */
+.site-footer {
+  flex: 0 0 auto;
+  width: 100%;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  background: linear-gradient(180deg, #1a1208 0%, #0b0803 100%);
+  border-top: 2px solid var(--rpg-border-gold);
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.55);
+}
+.site-footer-line {
+  font-family: 'Noto Serif JP', serif;
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+}
+/* 1行目：非公式である旨を最も見せる */
+.site-footer-line.is-primary {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--rpg-gold-bright);
+  text-shadow: 0 0 10px rgba(200, 160, 40, 0.28);
+}
+/* 2行目：権利表記 */
+.site-footer-line.is-secondary {
+  font-size: 0.78rem;
+  color: var(--rpg-parchment-dim);
+}
+@media (max-width: 600px) {
+  .site-footer { padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .site-footer-line.is-primary   { font-size: 0.78rem; }
+  .site-footer-line.is-secondary { font-size: 0.7rem; }
 }
 
 /* ── ページ共通トランジション ───────────── */

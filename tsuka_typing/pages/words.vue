@@ -132,7 +132,7 @@ const filteredWords = computed(() => {
 <style scoped>
 .words-screen {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
