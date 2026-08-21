@@ -251,7 +251,8 @@ function goTitle() {
 
 .result-screen {
   position: relative;
-  width: min(540px, 100vw);
+  width: min(560px, 100vw);
+  max-height: 100vh;
   padding: 32px 28px;
   display: flex;
   flex-direction: column;
@@ -260,10 +261,13 @@ function goTitle() {
   background: linear-gradient(160deg, #1c1508 0%, #100c06 100%);
   border: 1px solid #5a3c14;
   border-radius: 0;
-  /* 共有セクションを含めた全高がビューポートを超えたときだけ縦スクロールさせる */
-  max-height: 100%;
-  overflow-x: hidden;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.result-screen::-webkit-scrollbar {
+  display: none;
 }
 .bg-glow {
   position: absolute;
