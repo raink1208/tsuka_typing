@@ -81,7 +81,7 @@
       "textDiff": "難易度：{diff}",
       "textDiffMode": "難易度：{diff}（{mode}）",
       "textRank": "ランキング {rank} 位",
-      "textStats": "Words {words}／MaxCombo {combo}／Accuracy {accuracy}%／{kps} keys per sec",
+      "textStats": "Words {words}／MaxCombo {combo}／Accuracy {accuracy}%／{kps} kps",
       "x": "Xで共有",
       "bluesky": "Blueskyで共有",
       "misskey": "Misskeyで共有",

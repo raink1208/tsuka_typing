@@ -91,7 +91,7 @@ export function useResultShare() {
       accuracy: r.accuracy,
       kps:      r.kps,
     }))
-    return lines.join('\n')
+    return lines.join('\n\n')
   }
 
   /** コピー・OS共有用の全文（本文＋URL） */
