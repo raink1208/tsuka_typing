@@ -39,7 +39,8 @@
     "startKey": "Enter",
     "howTo1": "ローマ字で入力すると攻撃",
     "howTo2": "ミスすると反撃を受ける",
-    "wordsLink": "出題ワード一覧"
+    "wordsLink": "出題ワード一覧",
+    "rankingLink": "ランキング"
   },
   "game": {
     "loadingTitle": "NOW LOADING",
@@ -78,13 +79,37 @@
     "publishingButton": "登録中…",
     "retryButton": "もう一度",
     "titleButton": "タイトルへ",
-    "diffBadge": "難易度：{diff}"
+    "diffBadge": "難易度：{diff}",
+    "rankingLink": "ランキングを見る"
   },
   "components": {
     "score": "SCORE",
     "combo": "COMBO",
     "time": "TIME",
     "comboBonus": "COMBO ×{n}"
+  },
+  "ranking": {
+    "title": "ランキング",
+    "subtitle": "上位 {limit} 位",
+    "difficultyLabel": "難易度で絞り込み",
+    "modeLabel": "モードで絞り込み",
+    "modes": {
+      "normal": "通常",
+      "raNa": "ら→な変換"
+    },
+    "header": {
+      "rank": "順位",
+      "player": "プレイヤー",
+      "score": "スコア",
+      "kps": "Keys / Sec",
+      "accuracy": "正確率",
+      "playedAt": "プレイ日時"
+    },
+    "reload": "再読み込み",
+    "loading": "ランキングを取得中…",
+    "empty": "まだ記録がありません",
+    "error": "ランキングを取得できませんでした",
+    "backButton": "タイトルへ"
   },
   "words": {
     "title": "出題ワード一覧",

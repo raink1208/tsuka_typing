@@ -90,8 +90,11 @@
       <li>{{ t('title.howTo2') }}</li>
     </ul>
 
-    <!-- ワード一覧 -->
-    <NuxtLink to="/words" class="words-link">{{ t('title.wordsLink') }}</NuxtLink>
+    <!-- ランキング / ワード一覧 -->
+    <nav class="footer-links">
+      <NuxtLink to="/ranking" class="footer-link">{{ t('title.rankingLink') }}</NuxtLink>
+      <NuxtLink to="/words" class="footer-link">{{ t('title.wordsLink') }}</NuxtLink>
+    </nav>
   </div>
 </template>
 
@@ -523,9 +526,13 @@ onMounted(() => {
   color: #c8a63c;
 }
 
-/* ── ワード一覧リンク ───────────────────── */
-.words-link {
+/* ── フッターリンク（ランキング / ワード一覧） ── */
+.footer-links {
+  display: flex;
+  gap: 20px;
   z-index: 1;
+}
+.footer-link {
   font-size: 0.82rem;
   letter-spacing: 0.1em;
   color: #b3a173;
@@ -533,7 +540,7 @@ onMounted(() => {
   border-bottom: 1px solid rgba(200, 166, 60, 0.4);
   transition: color 0.2s, border-color 0.2s;
 }
-.words-link:hover {
+.footer-link:hover {
   color: #e8c85a;
   border-color: #c8a63c;
 }

@@ -101,6 +101,9 @@
       <button class="btn-title" @click="goTitle">{{ t('result.titleButton') }}</button>
     </div>
 
+    <!-- ランキング -->
+    <NuxtLink :to="rankingLink" class="ranking-link">{{ t('result.rankingLink') }}</NuxtLink>
+
     <!-- 難易度バッジ -->
     <div class="diff-badge" :style="{ color: diffColor }">
       {{ t('result.diffBadge', { diff: diffLabel }) }}
@@ -137,6 +140,12 @@ const resultSub = computed(() => {
 const DIFF_COLORS  = { easy: '#44ff88', normal: '#ffd700', hard: '#ff4444' }
 const diffColor    = computed(() => DIFF_COLORS[store.difficulty])
 const diffLabel    = computed(() => t(`difficulty.${store.difficulty}.label`))
+
+/** 今プレイした難易度＋モードのランキングを開くリンク */
+const rankingLink = computed(() => ({
+  path:  '/ranking',
+  query: { difficulty: store.difficulty, gameMode: store.gameMode },
+}))
 
 const rankingStatusClass = computed(() => ({
   accepted: store.submitStatus === 'accepted' && store.publishStatus === 'published',
@@ -336,6 +345,21 @@ function goTitle() {
   background: linear-gradient(135deg, #241408 0%, #1a1008 100%);
   border-color: #7a5c28;
   color: #c8a028;
+}
+
+/* ── ランキングリンク ── */
+.ranking-link {
+  z-index: 1;
+  font-size: 0.84rem;
+  letter-spacing: 0.1em;
+  color: #b3a173;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200, 166, 60, 0.4);
+  transition: color 0.2s, border-color 0.2s;
+}
+.ranking-link:hover {
+  color: #e8c85a;
+  border-color: #c8a63c;
 }
 
 /* ── 難易度バッジ ── */
