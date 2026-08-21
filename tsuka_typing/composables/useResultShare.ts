@@ -27,7 +27,7 @@ export interface ShareResult {
  */
 const SHARE_INTENT: Record<ShareTarget, (text: string, url: string) => string> = {
   x:       (text, url) => `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-  bluesky: (text, url) => `https://bsky.app/intent/compose?text=${encodeURIComponent(url ? `${text}\n${url}` : text)}`,
+  bluesky: (text, url) => `https://bsky.app/intent/compose?text=${encodeURIComponent(url ? `${text}\n\n${url}` : text)}`,
   misskey: (text, url) => `https://misskey.io/share?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
 }
 
@@ -91,13 +91,13 @@ export function useResultShare() {
       accuracy: r.accuracy,
       kps:      r.kps,
     }))
-    return lines.join('\n\n')
+    return lines.join('\n')
   }
 
   /** コピー・OS共有用の全文（本文＋URL） */
   function buildShareBody(r: ShareResult): string {
     const text = buildShareText(r)
-    return shareUrl.value ? `${text}\n${shareUrl.value}` : text
+    return shareUrl.value ? `${text}\n\n${shareUrl.value}` : text
   }
 
   /** 指定SNSの投稿画面を別タブで開く */
