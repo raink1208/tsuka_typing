@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ENEMIES, type Word, type Enemy } from '~/data/words'
 import { tokenizeHiragana, trySplitToken, RA_NA_OVERRIDES, type KanaToken } from '~/composables/useRomaji'
+import { preloadSoundEffects, playTypingSound, playAttackSound, playMissSound } from '~/composables/useSoundEffects'
 
 export type GameMode = 'normal' | 'ra-na'
 export type AnimState = 'idle' | 'attack' | 'damage' | 'dead'
@@ -205,6 +206,10 @@ export const useGameStore = defineStore('game', {
     },
 
     async startGame() {
+      // 効果音（打鍵音・攻撃音）をクライアント側メモリに展開しておく。
+      // ゲーム本体の処理とは非同期（再生完了を待たない）に扱う
+      preloadSoundEffects()
+
       const cfg = this.config
       this.phase = 'battle'
       // ここから /api/game/start の応答待ちに入る。ゲーム画面はこの間
@@ -348,6 +353,8 @@ export const useGameStore = defineStore('game', {
 
       // ── 完全一致: かな確定 ────────────────────────────────────────
       if (token.patterns.includes(newTyped)) {
+        // 打鍵音はゲームロジックとは非同期に再生する（完了を待たない）
+        playTypingSound()
         // より長いパターンへの前方一致がある場合は確定を保留（例: n → nn の途中）
         if (token.patterns.some(p => p.length > newTyped.length && p.startsWith(newTyped))) {
           this.correctKeystrokes++
@@ -366,6 +373,7 @@ export const useGameStore = defineStore('game', {
 
       // ── 前方一致: 入力継続 ───────────────────────────────────────
       if (token.patterns.some(p => p.startsWith(newTyped))) {
+        playTypingSound()
         this.correctKeystrokes++
         this.currentKanaTyped = newTyped
         return
@@ -389,6 +397,7 @@ export const useGameStore = defineStore('game', {
 
       const split = trySplitToken(token, newTyped, this.gameMode === 'ra-na' ? RA_NA_OVERRIDES : undefined)
       if (split) {
+        playTypingSound()
         this.correctKeystrokes++
         this.typedSoFar += newTyped  // 1文字目（分割前トークンの先頭かな）を確定
         this.currentTokens.splice(this.currentKanaIndex, 1, ...split)
@@ -404,6 +413,9 @@ export const useGameStore = defineStore('game', {
     _onWordComplete() {
       if (!this.currentWord) return
       this.transitioning = true
+
+      // 攻撃音もゲームロジックとは非同期に再生する（完了を待たない）
+      playAttackSound()
 
       this.combo++
       if (this.combo > this.maxCombo) this.maxCombo = this.combo
@@ -432,9 +444,14 @@ export const useGameStore = defineStore('game', {
         this.dyingEnemy = defeated
         this._spawnEnemy()
         this.enemyAnim = 'dead'
-        this.tsukasaAnim = 'idle'
         this._spawnWord()
         this.transitioning = false
+        // tsukasaAnim は 'attack' のまま少し残してから idle に戻す
+        // （即座に idle へ戻すと、Vue の描画バッチにより攻撃モーションが
+        // 一度も描画されないまま消えてしまう）
+        setTimeout(() => {
+          this.tsukasaAnim = 'idle'
+        }, WORD_TRANSITION_DELAY_MS)
         setTimeout(() => {
           // より速いキルが連鎖して dyingEnemy が上書きされている場合、
           // 後から発火した古いタイマーで新しい dyingEnemy を消さないようにする
@@ -442,18 +459,23 @@ export const useGameStore = defineStore('game', {
           this.showScorePopup = false
         }, ENEMY_DEFEATED_DELAY_MS)
       } else {
+        // 撃破時の分岐と同様、次の単語は即座に出してタイピングを継続できるようにし、
+        // ダメージ演出（アニメーション・スコアポップアップ）だけを非同期に消す。
         this.enemyAnim = 'damage'
+        this._spawnWord()
+        this.transitioning = false
         setTimeout(() => {
           this.enemyAnim = 'idle'
           this.tsukasaAnim = 'idle'
           this.showScorePopup = false
-          this._spawnWord()
-          this.transitioning = false
         }, WORD_TRANSITION_DELAY_MS)
       }
     },
 
     _onMiss() {
+      // ミス音もゲームロジックとは非同期に再生する（完了を待たない）
+      playMissSound()
+
       this.combo = 0
       this.showMissFlash = true
 
