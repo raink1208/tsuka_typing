@@ -46,12 +46,14 @@ const chars = computed(() => (props.romaji ?? '').split(''))
     0 0 8px rgba(232,160,64,0.9),
     0 0 18px rgba(220,100,20,0.6);
 }
-/* 次の文字：金色の輝き */
+/* 次の文字：白銀の輝き（打済みの琥珀色とはっきり区別する） */
 .current {
-  color: #e8c85a;
+  color: #ffffff;
+  background: rgba(120,200,255,0.16);
   text-shadow:
-    0 0 12px rgba(200,160,40,0.9),
-    0 0 24px rgba(200,160,40,0.5);
+    0 0 10px rgba(160,220,255,0.95),
+    0 0 22px rgba(120,200,255,0.7);
+  border-radius: 2px;
   animation: rune-pulse 0.7s ease-in-out infinite;
 }
 /* 未打済：石に刻まれた薄暗い色 */
