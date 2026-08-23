@@ -24,10 +24,13 @@ const chars = computed(() => (props.romaji ?? '').split(''))
 /* ルーン石板の詠唱進捗表示 */
 .romaji-progress {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 1px;
+  row-gap: 4px;
+  max-width: 100%;
   font-family: 'Share Tech Mono', 'Consolas', monospace;
-  font-size: 1.9rem;
+  font-size: clamp(1.1rem, 4vw, 1.9rem);
   letter-spacing: 0.06em;
   min-height: 2.5rem;
 }

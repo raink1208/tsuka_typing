@@ -14,7 +14,6 @@
         aria-hidden="true"
       />
     </div>
-    <div class="char-name">{{ t('character.tsukasa.fullName') }}</div>
   </div>
 </template>
 
@@ -73,16 +72,6 @@ const imgSrc = computed(() => IMG_MAP[props.state] ?? IMG_MAP['idle'])
   mask-size: contain;
   mask-position: bottom center;
   mask-repeat: no-repeat;
-}
-
-.char-name {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #9060c0;
-  text-shadow: 0 0 8px rgba(144,96,192,0.6);
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  font-family: 'Noto Serif JP', serif;
 }
 
 /* ── アニメーション状態 ── */

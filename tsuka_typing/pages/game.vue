@@ -386,6 +386,9 @@ watch(() => store.phase, (p) => {
 /* ── タイピングセクション（ルーン石板） ── */
 .typing-section {
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: linear-gradient(180deg, rgba(8,6,2,0.92) 0%, rgba(14,10,4,0.96) 100%);
   border: 1px solid #7a5c28;
   border-radius: 0;
@@ -414,6 +417,9 @@ watch(() => store.phase, (p) => {
   opacity: 0.4;
 }
 .romaji-wrap {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 6px 14px;
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid rgba(122,92,40,0.35);

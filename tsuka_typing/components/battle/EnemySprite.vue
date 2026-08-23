@@ -8,7 +8,6 @@
       <div class="enemy-glow" />
       <div class="enemy-emoji">{{ enemy?.emoji ?? '👾' }}</div>
     </div>
-    <div class="enemy-name">{{ displayName }}</div>
     <div class="enemy-desc">{{ displayDesc }}</div>
   </div>
 </template>
@@ -22,9 +21,6 @@ const props = defineProps<{
   state: 'idle' | 'attack' | 'damage' | 'dead'
 }>()
 
-const displayName = computed(() =>
-  props.enemy ? t(`enemies.${props.enemy.id}.name`) : t('enemies.unknown.name')
-)
 const displayDesc = computed(() =>
   props.enemy ? t(`enemies.${props.enemy.id}.description`) : t('enemies.unknown.description')
 )
@@ -57,13 +53,6 @@ const displayDesc = computed(() =>
   filter: drop-shadow(0 0 12px var(--enemy-color));
   z-index: 1;
 }
-.enemy-name {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--enemy-color);
-  text-shadow: 0 0 8px var(--enemy-color);
-  letter-spacing: 0.05em;
-}
 .enemy-desc {
   font-size: 0.65rem;
   color: rgba(255,255,255,0.45);
@@ -83,7 +72,6 @@ const displayDesc = computed(() =>
 .anim-dead .enemy-body {
   animation: enemy-dead 0.9s ease forwards;
 }
-.anim-dead .enemy-name,
 .anim-dead .enemy-desc {
   opacity: 0;
   transition: opacity 0.3s;
