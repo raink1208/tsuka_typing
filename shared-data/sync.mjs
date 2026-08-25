@@ -208,4 +208,10 @@ for (const targetDir of TARGET_DIRS) {
   console.log(`synced words.json / kana-map.json -> ${targetDir}`)
 }
 
-console.log(`\ndone: ${words.length} words (warnings: ${warnings.length})`)
+const countByCategory = new Map()
+for (const w of words) countByCategory.set(w.category, (countByCategory.get(w.category) ?? 0) + 1)
+
+console.log('\ncategory word counts:')
+for (const [category, count] of countByCategory) console.log(`  ${category}: ${count}`)
+
+console.log(`\ndone: ${words.length} words total (warnings: ${warnings.length})`)
