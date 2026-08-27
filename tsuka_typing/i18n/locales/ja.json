@@ -157,7 +157,8 @@
       "dajare": "だじゃれ",
       "slang": "スラング",
       "tag": "タグ",
-      "event": "イベント"
+      "event": "イベント",
+      "specialite": "すぺしゃりて"
     },
     "empty": "該当するワードがありません",
     "backButton": "タイトルへ"
