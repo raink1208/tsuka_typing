@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "つかさタイピング Beta",
+    "title": "つかさタイピング",
     "description": "すぺしゃりて所属のVTuber 領国つかささんの非公式タイピングゲームです。"
   },
   "difficulty": {
@@ -16,7 +16,7 @@
   },
   "enemies": {
     "tsukasa": {
-      "name": "領国つかさ",
+      "name": "ENEMY",
       "description": "よわよわの敵"
     },
     "unknown": {
@@ -26,7 +26,7 @@
   },
   "title": {
     "subtitleEn": "Typing Game",
-    "subtitleJp": "つかさタイピング Beta",
+    "subtitleJp": "つかさタイピング",
     "playerNameLabel": "プレイヤー名",
     "playerNamePlaceholder": "anonymous",
     "difficultyLabel": "難易度",
@@ -53,7 +53,7 @@
   "result": {
     "defeatTitle": "敗北",
     "clearTitle": "クリア",
-    "defeatSub": "つかさは倒れた",
+    "defeatSub": "{player}は倒れた",
     "clearSub": "{count} 語を入力した",
     "label": "Result",
     "scoreLabel": "Score",
@@ -77,7 +77,7 @@
     },
     "share": {
       "heading": "結果を共有",
-      "textScore": "{score} 点！",
+      "textScore": "つかさタイピング {score} 点！",
       "textDiff": "難易度：{diff}",
       "textDiffMode": "難易度：{diff}（{mode}）",
       "textRank": "ランキング {rank} 位",

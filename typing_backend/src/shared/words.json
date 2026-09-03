@@ -49,6 +49,7 @@
   {"kanji":"犬の卒倒、ワンパターン","hiragana":"いぬのそっとう、わんぱたーん","romaji":"inunosottou,wanpata-nn","difficulty":3,"category":"dajare"},
   {"kanji":"うわ、キリがないな～。霧だけに","hiragana":"うわ、きりがないな～。きりだけに","romaji":"uwa,kiriganaina-.kiridakeni","difficulty":3,"category":"dajare"},
   {"kanji":"この猛暑はもうしょうがない","hiragana":"このもうしょはもうしょうがない","romaji":"konomoushohamoushouganai","difficulty":3,"category":"dajare"},
+  {"kanji":"富裕層に豆腐郵送","hiragana":"ふゆうそうにとうふゆうそう","romaji":"fuyuusounitoufuyuusou","difficulty":2,"category":"dajare"},
   {"kanji":"夏の汗、嗅ぎあいっこ","hiragana":"なつのあせ、かぎあいっこ","romaji":"natsunoase,kagiaikko","difficulty":2,"category":"event"},
   {"kanji":"絶対ぼくの領域","hiragana":"ぜったいぼくのきんぐだむ","romaji":"zettaibokunokingudamu","difficulty":3,"category":"event"},
   {"kanji":"禁断ノ幻想郷","hiragana":"きんだんのあるかでぃあ","romaji":"kindannoarukadelia","difficulty":2,"category":"event"},
@@ -170,5 +171,7 @@
   {"kanji":"8月11日","hiragana":"8月11日","romaji":"8月11日","difficulty":1,"category":"tsukasa"},
   {"kanji":"王の帰還","hiragana":"おうのきかん","romaji":"ounokikann","difficulty":2,"category":"tsukasa"},
   {"kanji":"無軌道雑談","hiragana":"むきどうざつだん","romaji":"mukidouzatsudann","difficulty":2,"category":"tsukasa"},
-  {"kanji":"新人VTuber","hiragana":"しんじんvtuber","romaji":"shinjinvtuber","difficulty":1,"category":"tsukasa"}
+  {"kanji":"新人VTuber","hiragana":"しんじんvtuber","romaji":"shinjinvtuber","difficulty":1,"category":"tsukasa"},
+  {"kanji":"最強漆黒キングダム","hiragana":"さいきょうしっこくきんぐだむ","romaji":"saikyoushikkokukingudamu","difficulty":3,"category":"tsukasa"},
+  {"kanji":"チーム淑女","hiragana":"ちーむしゅくじょ","romaji":"chi-mushukujo","difficulty":2,"category":"tsukasa"}
 ]
