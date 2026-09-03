@@ -78,6 +78,7 @@
   {"kanji":"ASMR","hiragana":"asmr","romaji":"asmr","difficulty":1,"category":"general"},
   {"kanji":"リミナルスペース","hiragana":"りみなるすぺーす","romaji":"riminarusupe-su","difficulty":2,"category":"general"},
   {"kanji":"シングルタスク","hiragana":"しんぐるたすく","romaji":"shingurutasuku","difficulty":2,"category":"general"},
+  {"kanji":"催眠術","hiragana":"さいみんじゅつ","romaji":"saiminjutsu","difficulty":1,"category":"general"},
   {"kanji":"ぎょ...ぎょ...","hiragana":"ぎょ...ぎょ...","romaji":"gyo...gyo...","difficulty":1,"category":"slang"},
   {"kanji":"御意","hiragana":"ぎょい","romaji":"gyoi","difficulty":1,"category":"slang"},
   {"kanji":"GOD","hiragana":"god","romaji":"god","difficulty":1,"category":"slang"},
@@ -173,5 +174,6 @@
   {"kanji":"無軌道雑談","hiragana":"むきどうざつだん","romaji":"mukidouzatsudann","difficulty":2,"category":"tsukasa"},
   {"kanji":"新人VTuber","hiragana":"しんじんvtuber","romaji":"shinjinvtuber","difficulty":1,"category":"tsukasa"},
   {"kanji":"最強漆黒キングダム","hiragana":"さいきょうしっこくきんぐだむ","romaji":"saikyoushikkokukingudamu","difficulty":3,"category":"tsukasa"},
-  {"kanji":"チーム淑女","hiragana":"ちーむしゅくじょ","romaji":"chi-mushukujo","difficulty":2,"category":"tsukasa"}
+  {"kanji":"チーム淑女","hiragana":"ちーむしゅくじょ","romaji":"chi-mushukujo","difficulty":2,"category":"tsukasa"},
+  {"kanji":"メソゲソ","hiragana":"めそげそ","romaji":"mesogeso","difficulty":1,"category":"tsukasa"}
 ]
