@@ -51,7 +51,7 @@ function onKeydown(e: KeyboardEvent) {
     return
   }
   // 記号・伸ばし棒に対応するキー
-  if (/^[-!?,./]$/.test(e.key)) {
+  if (/^[-!?,./%]$/.test(e.key)) {
     e.preventDefault()
     emit('char', e.key, e.timeStamp)
   }
