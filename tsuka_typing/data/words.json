@@ -81,6 +81,12 @@
   {"kanji":"催眠術","hiragana":"さいみんじゅつ","romaji":"saiminjutsu","difficulty":1,"category":"general"},
   {"kanji":"ゴリ押し","hiragana":"ごりおし","romaji":"gorioshi","difficulty":1,"category":"general"},
   {"kanji":"ぐるぐる","hiragana":"ぐるぐる","romaji":"guruguru","difficulty":1,"category":"general"},
+  {"kanji":"オタク","hiragana":"おたく","romaji":"otaku","difficulty":1,"category":"general"},
+  {"kanji":"人望","hiragana":"じんぼう","romaji":"jinbou","difficulty":1,"category":"general"},
+  {"kanji":"ちやほや","hiragana":"ちやほや","romaji":"chiyahoya","difficulty":1,"category":"general"},
+  {"kanji":"コミュ障","hiragana":"こみゅしょう","romaji":"komyushou","difficulty":1,"category":"general"},
+  {"kanji":"友達","hiragana":"ともだち","romaji":"tomodachi","difficulty":1,"category":"general"},
+  {"kanji":"国王","hiragana":"こくおう","romaji":"kokuou","difficulty":1,"category":"general"},
   {"kanji":"ぎょ...ぎょ...","hiragana":"ぎょ...ぎょ...","romaji":"gyo...gyo...","difficulty":1,"category":"slang"},
   {"kanji":"御意","hiragana":"ぎょい","romaji":"gyoi","difficulty":1,"category":"slang"},
   {"kanji":"GOD","hiragana":"god","romaji":"god","difficulty":1,"category":"slang"},
@@ -116,6 +122,7 @@
   {"kanji":"力こそパワー","hiragana":"ちからこそぱわー","romaji":"chikarakosopawa-","difficulty":2,"category":"slang"},
   {"kanji":"人類皆ドM理論","hiragana":"じんるいみんなどえむりろん","romaji":"jinruiminnadoemurironn","difficulty":3,"category":"slang"},
   {"kanji":"くしゃみ助かる","hiragana":"くしゃみたすかる","romaji":"kushamitasukaru","difficulty":2,"category":"slang"},
+  {"kanji":"にょ","hiragana":"にょ","romaji":"nyo","difficulty":1,"category":"slang"},
   {"kanji":"すぺしゃりて","hiragana":"すぺしゃりて","romaji":"supesharite","difficulty":1,"category":"specialite"},
   {"kanji":"小鳥谷なの","hiragana":"こずやなの","romaji":"kozuyanano","difficulty":1,"category":"specialite"},
   {"kanji":"尾幌こま","hiragana":"おぼろこま","romaji":"oborokoma","difficulty":1,"category":"specialite"},
@@ -182,5 +189,6 @@
   {"kanji":"せっかち","hiragana":"せっかち","romaji":"sekkachi","difficulty":1,"category":"tsukasa"},
   {"kanji":"税率98%","hiragana":"ぜいりつ98％","romaji":"zeiritsu98%","difficulty":1,"category":"tsukasa"},
   {"kanji":"つかキン","hiragana":"つかきん","romaji":"tsukakinn","difficulty":1,"category":"tsukasa"},
-  {"kanji":"多忙中学生","hiragana":"たぼうちゅうがくせい","romaji":"tabouchuugakusei","difficulty":2,"category":"tsukasa"}
+  {"kanji":"多忙中学生","hiragana":"たぼうちゅうがくせい","romaji":"tabouchuugakusei","difficulty":2,"category":"tsukasa"},
+  {"kanji":"NKZK","hiragana":"NKZK","romaji":"NKZK","difficulty":1,"category":"tsukasa"}
 ]
